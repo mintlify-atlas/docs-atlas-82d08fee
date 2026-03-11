@@ -1,179 +1,351 @@
 ---
-title: Login Guide
-description: Learn how to access the Solare Admin View login interface and authenticate to the system
+title: Login Screen
+description: Understanding the login screen interface in Solare Admin View
 ---
 
 ## Overview
 
-The Solare Admin View provides a secure login interface built with Laravel, styled with Tailwind CSS and Flowbite components. This guide will walk you through accessing and using the login system.
-
-## Accessing the Login Page
-
-The login page is the default entry point to the Solare Admin View application.
-
-<Steps>
-  <Step title="Navigate to the Application">
-    Open your web browser and navigate to your application's URL. The login page is automatically displayed at the root path (`/`).
-  </Step>
-  
-  <Step title="View the Login Interface">
-    You'll see a clean, modern login interface with the Laravel branding and authentication form. The interface adapts to both light and dark modes based on your system preferences.
-  </Step>
-  
-  <Step title="Enter Your Credentials">
-    Input your username or email address and password in the provided fields.
-  </Step>
-  
-  <Step title="Submit and Authenticate">
-    Click the login button to authenticate. Upon successful login, you'll be redirected to the dashboard.
-  </Step>
-</Steps>
-
-## Interface Features
-
-### Responsive Design
-
-The login page is fully responsive and works seamlessly across different devices:
-
-- **Mobile devices**: Optimized for screens as small as 335px wide
-- **Tablets**: Adapts to medium-sized screens
-- **Desktop**: Full-width layout with centered content (max-width: 4xl)
+Solare Admin View includes a basic login screen template at the root route (`/`). The current implementation showcases Flowbite alert components as examples, providing a foundation for building your authentication interface.
 
 <Note>
-  The interface automatically adjusts to your device's screen size for optimal usability.
+  The current login screen is a starter template showing UI component examples. You'll need to implement the actual login form and authentication logic.
 </Note>
 
-### Dark Mode Support
+## Current Implementation
 
-The login page includes built-in dark mode support:
+The login screen is located at `resources/views/loginScreen/login.blade.php` and is served by the root route:
 
-- **Light mode**: Clean white background (`#FDFDFC`) with dark text (`#1b1b18`)
-- **Dark mode**: Dark background (`#0a0a0a`) that automatically activates based on system preferences
+```php routes/web.php
+Route::get('/', function () {
+    return view('loginScreen.login');
+});
+```
 
-### Visual Elements
+### Template Structure
 
-The login page features:
+```blade login.blade.php
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi App con Flowbite</title>
+    
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+</head>
+<body>
+    @yield('content')
+        
 
-- Laravel 12 logo with animated graphics
-- Smooth transitions and animations (750ms duration)
-- Shadow effects for depth and visual hierarchy
-- Color-coded alert components for feedback
+<div class="p-4 mb-4 text-sm text-fg-brand-strong rounded-base bg-brand-softer" role="alert">
+  <span class="font-medium">Info alert!</span> Change a few things up and try submitting again.
+</div>
+<div class="p-4 mb-4 text-sm text-fg-danger-strong rounded-base bg-danger-soft" role="alert">
+  <span class="font-medium">Danger alert!</span> Change a few things up and try submitting again.
+</div>
+<div class="p-4 mb-4 text-sm text-fg-success-strong rounded-base bg-success-soft" role="alert">
+  <span class="font-medium">Success alert!</span> Change a few things up and try submitting again.
+</div>
+<div class="p-4 mb-4 text-sm text-fg-warning rounded-base bg-warning-soft" role="alert">
+  <span class="font-medium">Warning alert!</span> Change a few things up and try submitting again.
+</div>
+<div class="p-4 text-sm text-heading rounded-base bg-neutral-secondary-medium" role="alert">
+  <span class="font-medium">Dark alert!</span> Change a few things up and try submitting again.
+</div>
+
+</html>
+```
+
+This template demonstrates five Flowbite alert component variants that you can use in your application.
 
 ## Alert Components
 
-The interface includes several alert types for user feedback:
+The login screen showcases Flowbite's alert system with semantic color tokens:
 
-<AccordionGroup>
-  <Accordion title="Info Alert">
-    Blue-branded alerts for informational messages:
-    ```html
-    <div class="p-4 mb-4 text-sm text-fg-brand-strong rounded-base bg-brand-softer" role="alert">
-      <span class="font-medium">Info alert!</span> Message content here.
+### Brand/Info Alert
+
+For informational messages:
+
+```html
+<div class="p-4 mb-4 text-sm text-fg-brand-strong rounded-base bg-brand-softer" 
+     role="alert">
+  <span class="font-medium">Info alert!</span> Your message here.
+</div>
+```
+
+- **Background**: `bg-brand-softer` - Soft brand color
+- **Text**: `text-fg-brand-strong` - Strong brand text
+- **Use case**: General notifications, information
+
+### Danger Alert
+
+For errors and critical warnings:
+
+```html
+<div class="p-4 mb-4 text-sm text-fg-danger-strong rounded-base bg-danger-soft" 
+     role="alert">
+  <span class="font-medium">Danger alert!</span> Error message.
+</div>
+```
+
+- **Background**: `bg-danger-soft` - Soft red
+- **Text**: `text-fg-danger-strong` - Strong red text
+- **Use case**: Login errors, validation failures
+
+### Success Alert
+
+For successful operations:
+
+```html
+<div class="p-4 mb-4 text-sm text-fg-success-strong rounded-base bg-success-soft" 
+     role="alert">
+  <span class="font-medium">Success alert!</span> Operation successful.
+</div>
+```
+
+- **Background**: `bg-success-soft` - Soft green
+- **Text**: `text-fg-success-strong` - Strong green text
+- **Use case**: Successful login, account created
+
+### Warning Alert
+
+For cautions and warnings:
+
+```html
+<div class="p-4 mb-4 text-sm text-fg-warning rounded-base bg-warning-soft" 
+     role="alert">
+  <span class="font-medium">Warning alert!</span> Caution message.
+</div>
+```
+
+- **Background**: `bg-warning-soft` - Soft amber/yellow
+- **Text**: `text-fg-warning` - Warning text color
+- **Use case**: Password expiring, rate limiting
+
+### Neutral/Dark Alert
+
+For neutral system messages:
+
+```html
+<div class="p-4 text-sm text-heading rounded-base bg-neutral-secondary-medium" 
+     role="alert">
+  <span class="font-medium">Dark alert!</span> System message.
+</div>
+```
+
+- **Background**: `bg-neutral-secondary-medium` - Neutral gray
+- **Text**: `text-heading` - Default heading color
+- **Use case**: System maintenance, general notices
+
+<Tip>
+  These semantic color tokens automatically adapt to both light and dark modes thanks to Flowbite's theme system.
+</Tip>
+
+## Building Your Login Form
+
+To create a functional login form, replace the alert examples with a login form. Here's a recommended structure:
+
+```blade login.blade.php
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - {{ config('app.name') }}</title>
+    
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+</head>
+<body class="bg-[#FDFDFC] dark:bg-[#0a0a0a]">
+    <div class="min-h-screen flex items-center justify-center px-4">
+        <div class="max-w-md w-full">
+            <!-- Login Card -->
+            <div class="bg-white dark:bg-[#161615] rounded-lg shadow-lg p-8 
+                        border border-[#e3e3e0] dark:border-[#3E3E3A]">
+                <h1 class="text-2xl font-bold text-[#1b1b18] dark:text-[#EDEDEC] mb-6">
+                    Sign In
+                </h1>
+
+                @if ($errors->any())
+                    <div class="mb-4 p-4 text-sm text-fg-danger-strong rounded-base bg-danger-soft" 
+                         role="alert">
+                        <span class="font-medium">Error!</span> Invalid credentials.
+                    </div>
+                @endif
+
+                <form method="POST" action="{{ route('login') }}">
+                    @csrf
+                    
+                    <!-- Email Field -->
+                    <div class="mb-4">
+                        <label for="email" 
+                               class="block text-sm font-medium text-[#1b1b18] dark:text-[#EDEDEC] mb-2">
+                            Email
+                        </label>
+                        <input type="email" 
+                               id="email" 
+                               name="email" 
+                               required
+                               class="w-full px-4 py-2 border border-[#e3e3e0] dark:border-[#3E3E3A] 
+                                      rounded-sm bg-white dark:bg-[#161615] 
+                                      text-[#1b1b18] dark:text-[#EDEDEC]
+                                      focus:border-[#1915014a] dark:focus:border-[#62605b] 
+                                      focus:outline-none">
+                    </div>
+
+                    <!-- Password Field -->
+                    <div class="mb-6">
+                        <label for="password" 
+                               class="block text-sm font-medium text-[#1b1b18] dark:text-[#EDEDEC] mb-2">
+                            Password
+                        </label>
+                        <input type="password" 
+                               id="password" 
+                               name="password" 
+                               required
+                               class="w-full px-4 py-2 border border-[#e3e3e0] dark:border-[#3E3E3A] 
+                                      rounded-sm bg-white dark:bg-[#161615] 
+                                      text-[#1b1b18] dark:text-[#EDEDEC]
+                                      focus:border-[#1915014a] dark:focus:border-[#62605b] 
+                                      focus:outline-none">
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" 
+                            class="w-full px-5 py-2.5 bg-[#1b1b18] dark:bg-[#EDEDEC] 
+                                   text-white dark:text-[#1b1b18] 
+                                   rounded-sm border border-black dark:border-[#3E3E3A]
+                                   hover:bg-black dark:hover:bg-white 
+                                   font-medium transition-colors">
+                        Sign In
+                    </button>
+                </form>
+            </div>
+        </div>
     </div>
+</body>
+</html>
+```
+
+## Implementing Authentication
+
+To make the login form functional, you need to:
+
+<Steps>
+  <Step title="Install Laravel Breeze or Fortify">
+    Use Laravel's authentication packages for login/logout functionality:
+    
+    ```bash
+    composer require laravel/breeze --dev
+    php artisan breeze:install blade
     ```
-  </Accordion>
+  </Step>
   
-  <Accordion title="Danger Alert">
-    Red alerts for errors and critical messages:
-    ```html
-    <div class="p-4 mb-4 text-sm text-fg-danger-strong rounded-base bg-danger-soft" role="alert">
-      <span class="font-medium">Danger alert!</span> Error message here.
-    </div>
+  <Step title="Run Migrations">
+    Ensure the users table exists:
+    
+    ```bash
+    php artisan migrate
     ```
-  </Accordion>
+  </Step>
   
-  <Accordion title="Success Alert">
-    Green alerts for successful operations:
-    ```html
-    <div class="p-4 mb-4 text-sm text-fg-success-strong rounded-base bg-success-soft" role="alert">
-      <span class="font-medium">Success alert!</span> Success message here.
-    </div>
+  <Step title="Configure Routes">
+    Breeze will add authentication routes automatically, or define them manually:
+    
+    ```php routes/web.php
+    use App\Http\Controllers\Auth\LoginController;
+    
+    Route::get('/', function () {
+        return view('loginScreen.login');
+    })->name('login');
+    
+    Route::post('/login', [LoginController::class, 'authenticate']);
+    Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
     ```
-  </Accordion>
+  </Step>
   
-  <Accordion title="Warning Alert">
-    Yellow/amber alerts for warnings:
-    ```html
-    <div class="p-4 mb-4 text-sm text-fg-warning rounded-base bg-warning-soft" role="alert">
-      <span class="font-medium">Warning alert!</span> Warning message here.
-    </div>
+  <Step title="Create Login Controller">
+    Implement authentication logic:
+    
+    ```php
+    php artisan make:controller Auth/LoginController
     ```
-  </Accordion>
-</AccordionGroup>
+  </Step>
+</Steps>
 
-## Navigation After Login
+## Design System
 
-Once authenticated, you have several navigation options:
+The login screen uses the same design system as the rest of the application:
 
-- **Dashboard**: Main administrative interface (accessible at `/dashboard`)
-- **Register**: If enabled, allows new user registration
-- **Logout**: Sign out of your session
+### Colors
 
-<Info>
-  The navigation menu dynamically changes based on your authentication status, showing relevant options only.
-</Info>
+```css
+/* Light Mode */
+bg-[#FDFDFC]           /* Page background */
+bg-white               /* Card background */
+text-[#1b1b18]        /* Primary text */
+border-[#e3e3e0]      /* Borders */
 
-## Troubleshooting
+/* Dark Mode */
+bg-[#0a0a0a]          /* Page background */
+bg-[#161615]          /* Card background */
+text-[#EDEDEC]        /* Primary text */
+border-[#3E3E3A]      /* Borders */
+```
 
-### Common Login Issues
+### Typography
 
-<AccordionGroup>
-  <Accordion title="Invalid Credentials">
-    If you see a danger alert about invalid credentials:
-    - Double-check your username/email
-    - Verify your password (check Caps Lock)
-    - Contact your administrator if you've forgotten your credentials
-  </Accordion>
-  
-  <Accordion title="Page Not Loading">
-    If the login page doesn't load:
-    - Check your internet connection
-    - Verify the application URL is correct
-    - Clear your browser cache and cookies
-    - Try a different browser
-  </Accordion>
-  
-  <Accordion title="Visual Issues">
-    If the interface looks broken:
-    - Ensure JavaScript is enabled in your browser
-    - Clear browser cache
-    - Update your browser to the latest version
-  </Accordion>
-</AccordionGroup>
+The Instrument Sans font family is used throughout:
+
+```css
+font-family: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
+```
+
+## Accessibility
+
+When building your login form, ensure:
+
+- ✅ All form fields have associated `<label>` elements
+- ✅ Alerts include `role="alert"` for screen readers
+- ✅ Focus states are visible with clear borders
+- ✅ Error messages are descriptive and actionable
+- ✅ Keyboard navigation works smoothly
 
 ## Security Best Practices
 
-<Warning>
-  Always follow these security guidelines when logging in:
-</Warning>
-
-- Never share your login credentials
-- Use a strong, unique password
-- Log out when using shared computers
-- Be aware of phishing attempts
-- Report suspicious activity to your administrator
-
-## Typography and Fonts
-
-The login interface uses the **Instrument Sans** font family for a modern, clean appearance:
-
-```html
-<link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
-```
-
-Font weights used:
-- **400**: Regular text
-- **500**: Medium weight for emphasis
-- **600**: Semibold for headings
-
-<Tip>
-  The interface automatically falls back to system fonts if the web font fails to load, ensuring readability in all scenarios.
-</Tip>
+<CardGroup cols={2}>
+  <Card title="CSRF Protection" icon="shield">
+    Always include `@csrf` token in forms to prevent cross-site request forgery attacks.
+  </Card>
+  
+  <Card title="Rate Limiting" icon="gauge">
+    Implement rate limiting on login attempts to prevent brute force attacks.
+  </Card>
+  
+  <Card title="HTTPS Only" icon="lock">
+    Always use HTTPS in production to encrypt login credentials in transit.
+  </Card>
+  
+  <Card title="Password Hashing" icon="key">
+    Laravel automatically hashes passwords using bcrypt. Never store plain text passwords.
+  </Card>
+</CardGroup>
 
 ## Next Steps
 
-After successfully logging in:
-
-1. Explore the [Dashboard](/guides/dashboard) to understand the main administrative interface
-2. Learn about [Customization](/guides/customization) options to tailor the interface
-3. Review the [User Management](/features/user-management) features
+<CardGroup cols={2}>
+  <Card title="Authentication" icon="lock" href="/features/authentication">
+    Learn about Laravel's authentication system
+  </Card>
+  
+  <Card title="Build Dashboard" icon="gauge" href="/guides/dashboard">
+    Create your admin dashboard interface
+  </Card>
+  
+  <Card title="User Management" icon="users" href="/features/user-management">
+    Manage users in your application
+  </Card>
+  
+  <Card title="UI Components" icon="palette" href="/features/ui-components">
+    Explore more Flowbite components
+  </Card>
+</CardGroup>
