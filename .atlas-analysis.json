@@ -1,0 +1,91 @@
+{
+  "projectType": "saas",
+  "projectName": "Solare Admin View",
+  "projectDescription": "A Laravel-based administrative interface with Flowbite UI components and Tailwind CSS",
+  "theme": "linden",
+  "primaryColor": "#040404",
+  "lightColor": "#ef370f",
+  "darkColor": "#f79d72",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "quickstart"
+            ]
+          },
+          {
+            "group": "Core Features",
+            "pages": [
+              "features/authentication",
+              "features/user-management",
+              "features/ui-components"
+            ]
+          },
+          {
+            "group": "User Guides",
+            "pages": [
+              "guides/login",
+              "guides/dashboard",
+              "guides/customization"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Development",
+        "groups": [
+          {
+            "group": "Setup",
+            "pages": [
+              "development/installation",
+              "development/configuration",
+              "development/environment"
+            ]
+          },
+          {
+            "group": "Architecture",
+            "pages": [
+              "development/structure",
+              "development/routing",
+              "development/models"
+            ]
+          },
+          {
+            "group": "Frontend",
+            "pages": [
+              "development/tailwind",
+              "development/flowbite",
+              "development/blade-templates"
+            ]
+          },
+          {
+            "group": "Testing",
+            "pages": [
+              "development/testing",
+              "development/deployment"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "User authentication and login system",
+    "Flowbite UI component library integration",
+    "Tailwind CSS v4 styling framework",
+    "Laravel 12 backend architecture",
+    "Responsive admin interface design"
+  ],
+  "publicApiSurface": [
+    "GET / - Login screen route",
+    "User model with authentication",
+    "Flowbite alert components",
+    "Tailwind utility classes",
+    "Vite asset bundling"
+  ]
+}
