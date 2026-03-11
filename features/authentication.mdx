@@ -1,0 +1,187 @@
+---
+title: Authentication System
+description: Learn how Solare Admin View handles user authentication using Laravel's built-in authentication system
+---
+
+## Overview
+
+Solare Admin View uses Laravel's robust authentication system to manage user access. The authentication layer is built on Laravel's session-based authentication with the Eloquent ORM for user management.
+
+## Authentication Configuration
+
+The authentication system is configured in `config/auth.php` with the following defaults:
+
+<CodeGroup>
+```php config/auth.php
+'defaults' => [
+    'guard' => env('AUTH_GUARD', 'web'),
+    'passwords' => env('AUTH_PASSWORD_BROKER', 'users'),
+],
+
+'guards' => [
+    'web' => [
+        'driver' => 'session',
+        'provider' => 'users',
+    ],
+],
+
+'providers' => [
+    'users' => [
+        'driver' => 'eloquent',
+        'model' => env('AUTH_MODEL', App\Models\User::class),
+    ],
+],
+```
+</CodeGroup>
+
+<Note>
+The system uses session-based authentication with the `web` guard, which is suitable for traditional web applications with server-side rendered views.
+</Note>
+
+## Authentication Guards
+
+Laravel guards define how users are authenticated for each request. Solare Admin View uses the default `web` guard:
+
+- **Driver**: Session-based authentication
+- **Provider**: Eloquent users provider
+- **Storage**: Server-side sessions
+
+## User Provider
+
+The authentication system retrieves users from the database using the Eloquent user provider, which is configured to use the `App\Models\User` model.
+
+<Steps>
+  <Step title="User Authentication">
+    When a user attempts to log in, Laravel validates their credentials against the users table.
+  </Step>
+  
+  <Step title="Session Creation">
+    Upon successful authentication, Laravel creates a session and stores the user's ID.
+  </Step>
+  
+  <Step title="Request Authentication">
+    For subsequent requests, Laravel retrieves the user ID from the session and loads the user model.
+  </Step>
+</Steps>
+
+## Password Reset Configuration
+
+The system includes password reset functionality with the following configuration:
+
+```php
+'passwords' => [
+    'users' => [
+        'provider' => 'users',
+        'table' => env('AUTH_PASSWORD_RESET_TOKEN_TABLE', 'password_reset_tokens'),
+        'expire' => 60,
+        'throttle' => 60,
+    ],
+],
+```
+
+<Accordion title="Password Reset Settings">
+  - **Expire**: Password reset tokens expire after 60 minutes
+  - **Throttle**: Users must wait 60 seconds between reset token requests
+  - **Table**: Reset tokens are stored in the `password_reset_tokens` table
+</Accordion>
+
+## Database Schema
+
+The authentication system uses three main database tables:
+
+### Users Table
+
+```php
+Schema::create('users', function (Blueprint $table) {
+    $table->id();
+    $table->string('name');
+    $table->string('email')->unique();
+    $table->timestamp('email_verified_at')->nullable();
+    $table->string('password');
+    $table->rememberToken();
+    $table->timestamps();
+});
+```
+
+### Password Reset Tokens Table
+
+```php
+Schema::create('password_reset_tokens', function (Blueprint $table) {
+    $table->string('email')->primary();
+    $table->string('token');
+    $table->timestamp('created_at')->nullable();
+});
+```
+
+### Sessions Table
+
+```php
+Schema::create('sessions', function (Blueprint $table) {
+    $table->string('id')->primary();
+    $table->foreignId('user_id')->nullable()->index();
+    $table->string('ip_address', 45)->nullable();
+    $table->text('user_agent')->nullable();
+    $table->longText('payload');
+    $table->integer('last_activity')->index();
+});
+```
+
+## Login View
+
+The login interface is defined in the root route at `routes/web.php:6`:
+
+```php
+Route::get('/', function () {
+    return view('loginScreen.login');
+});
+```
+
+This route serves the login page from `resources/views/loginScreen/login.blade.php`, which uses Flowbite components for a modern, accessible interface.
+
+## Security Features
+
+<CardGroup cols={2}>
+  <Card title="Password Hashing" icon="lock">
+    Passwords are automatically hashed using Laravel's bcrypt hashing algorithm.
+  </Card>
+  
+  <Card title="Remember Me" icon="clock">
+    Support for "remember me" functionality using secure tokens.
+  </Card>
+  
+  <Card title="Session Management" icon="shield">
+    Secure session handling with IP address and user agent tracking.
+  </Card>
+  
+  <Card title="Password Confirmation" icon="key">
+    Timeout for password confirmation set to 10,800 seconds (3 hours).
+  </Card>
+</CardGroup>
+
+## Environment Variables
+
+You can customize authentication behavior using these environment variables:
+
+```bash
+AUTH_GUARD=web
+AUTH_PASSWORD_BROKER=users
+AUTH_MODEL=App\Models\User
+AUTH_PASSWORD_RESET_TOKEN_TABLE=password_reset_tokens
+AUTH_PASSWORD_TIMEOUT=10800
+```
+
+<Warning>
+Never commit your `.env` file to version control. It contains sensitive configuration that should remain private.
+</Warning>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="User Management" icon="users" href="/features/user-management">
+    Learn how to manage users in the system
+  </Card>
+  
+  <Card title="UI Components" icon="palette" href="/features/ui-components">
+    Explore Flowbite UI components used in the interface
+  </Card>
+</CardGroup>

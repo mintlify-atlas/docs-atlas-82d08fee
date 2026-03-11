@@ -1,0 +1,274 @@
+---
+title: Installation
+description: Complete installation guide for Solare Admin View with system requirements and setup instructions
+---
+
+## System Requirements
+
+Before installing Solare Admin View, ensure your system meets the following requirements:
+
+<CardGroup cols={2}>
+  <Card title="PHP" icon="php">
+    PHP 8.2 or higher
+  </Card>
+  <Card title="Composer" icon="box">
+    Latest version of Composer
+  </Card>
+  <Card title="Node.js" icon="node-js">
+    Node.js 18+ with npm
+  </Card>
+  <Card title="Database" icon="database">
+    MariaDB, MySQL, PostgreSQL, or SQLite
+  </Card>
+</CardGroup>
+
+<Note>
+Solare Admin View is built on **Laravel 12.0**, which requires PHP 8.2 or higher.
+</Note>
+
+## Installation Methods
+
+<Tabs>
+  <Tab title="Quick Setup (Recommended)">
+    The quickest way to get started is using the automated setup script included in `composer.json`.
+
+    <Steps>
+      <Step title="Clone the repository">
+        ```bash
+        git clone <repository-url> solare-admin
+        cd solare-admin
+        ```
+      </Step>
+
+      <Step title="Run the setup script">
+        This single command will install all dependencies, configure your environment, and set up the database:
+        
+        ```bash
+        composer setup
+        ```
+
+        <Note>
+        The setup script automatically performs the following tasks:
+        - Installs PHP dependencies via Composer
+        - Creates `.env` file from `.env.example`
+        - Generates application encryption key
+        - Runs database migrations
+        - Installs npm dependencies
+        - Builds frontend assets
+        </Note>
+      </Step>
+
+      <Step title="Configure your database">
+        Edit the `.env` file to match your database configuration:
+        
+        ```bash
+        DB_CONNECTION=mariadb
+        DB_HOST=127.0.0.1
+        DB_PORT=3306
+        DB_DATABASE=solare
+        DB_USERNAME=root
+        DB_PASSWORD=
+        ```
+      </Step>
+
+      <Step title="Start the development server">
+        Launch the application with the integrated development environment:
+        
+        ```bash
+        composer dev
+        ```
+
+        <Info>
+        This command starts three services concurrently:
+        - Laravel development server (port 8000)
+        - Queue worker for background jobs
+        - Vite development server for hot module replacement
+        </Info>
+      </Step>
+    </Steps>
+  </Tab>
+
+  <Tab title="Manual Installation">
+    For more control over the installation process, follow these manual steps.
+
+    <Steps>
+      <Step title="Install PHP dependencies">
+        ```bash
+        composer install
+        ```
+      </Step>
+
+      <Step title="Create environment file">
+        ```bash
+        cp .env.example .env
+        ```
+      </Step>
+
+      <Step title="Generate application key">
+        ```bash
+        php artisan key:generate
+        ```
+      </Step>
+
+      <Step title="Configure database">
+        Edit `.env` and update database credentials:
+        
+        ```env
+        DB_CONNECTION=mariadb
+        DB_DATABASE=solare
+        DB_USERNAME=your_username
+        DB_PASSWORD=your_password
+        ```
+      </Step>
+
+      <Step title="Run database migrations">
+        ```bash
+        php artisan migrate
+        ```
+      </Step>
+
+      <Step title="Install frontend dependencies">
+        ```bash
+        npm install
+        ```
+      </Step>
+
+      <Step title="Build assets">
+        For development:
+        ```bash
+        npm run dev
+        ```
+        
+        For production:
+        ```bash
+        npm run build
+        ```
+      </Step>
+
+      <Step title="Start the server">
+        ```bash
+        php artisan serve
+        ```
+      </Step>
+    </Steps>
+  </Tab>
+
+  <Tab title="Docker/Laravel Sail">
+    Solare Admin View includes Laravel Sail for Docker-based development.
+
+    <Steps>
+      <Step title="Install dependencies via Docker">
+        ```bash
+        docker run --rm \
+            -u "$(id -u):$(id -g)" \
+            -v "$(pwd):/var/www/html" \
+            -w /var/www/html \
+            laravelsail/php82-composer:latest \
+            composer install --ignore-platform-reqs
+        ```
+      </Step>
+
+      <Step title="Start Sail">
+        ```bash
+        ./vendor/bin/sail up -d
+        ```
+      </Step>
+
+      <Step title="Run setup inside container">
+        ```bash
+        ./vendor/bin/sail artisan key:generate
+        ./vendor/bin/sail artisan migrate
+        ./vendor/bin/sail npm install
+        ./vendor/bin/sail npm run build
+        ```
+      </Step>
+    </Steps>
+
+    <Tip>
+    Add an alias to your shell for easier Sail usage:
+    ```bash
+    alias sail='./vendor/bin/sail'
+    ```
+    </Tip>
+  </Tab>
+</Tabs>
+
+## Post-Installation
+
+### Verify Installation
+
+After installation, verify everything is working correctly:
+
+```bash
+# Run the test suite
+composer test
+```
+
+### File Permissions
+
+Ensure the following directories are writable:
+
+```bash
+chmod -R 775 storage bootstrap/cache
+chown -R www-data:www-data storage bootstrap/cache
+```
+
+<Warning>
+The `storage` and `bootstrap/cache` directories must be writable by the web server for Laravel to function properly.
+</Warning>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Composer install fails">
+    Ensure you have PHP 8.2+ installed:
+    ```bash
+    php -v
+    ```
+    
+    If using a different PHP version, you may need to specify the PHP binary:
+    ```bash
+    /usr/bin/php8.2 /usr/local/bin/composer install
+    ```
+  </Accordion>
+
+  <Accordion title="Database connection errors">
+    Verify your database credentials in `.env` and ensure the database exists:
+    ```bash
+    mysql -u root -p -e "CREATE DATABASE solare;"
+    ```
+    
+    Test the connection:
+    ```bash
+    php artisan db:show
+    ```
+  </Accordion>
+
+  <Accordion title="Asset compilation fails">
+    Clear the npm cache and reinstall:
+    ```bash
+    rm -rf node_modules package-lock.json
+    npm install
+    npm run build
+    ```
+  </Accordion>
+
+  <Accordion title="Permission denied errors">
+    Make sure storage directories have correct permissions:
+    ```bash
+    sudo chown -R $USER:www-data storage bootstrap/cache
+    sudo chmod -R 775 storage bootstrap/cache
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Configuration" icon="gear" href="/development/configuration">
+    Configure your application settings and services
+  </Card>
+  <Card title="Environment Setup" icon="server" href="/development/environment">
+    Learn about environment variables and configuration
+  </Card>
+</CardGroup>

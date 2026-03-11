@@ -1,0 +1,179 @@
+---
+title: Login Guide
+description: Learn how to access the Solare Admin View login interface and authenticate to the system
+---
+
+## Overview
+
+The Solare Admin View provides a secure login interface built with Laravel, styled with Tailwind CSS and Flowbite components. This guide will walk you through accessing and using the login system.
+
+## Accessing the Login Page
+
+The login page is the default entry point to the Solare Admin View application.
+
+<Steps>
+  <Step title="Navigate to the Application">
+    Open your web browser and navigate to your application's URL. The login page is automatically displayed at the root path (`/`).
+  </Step>
+  
+  <Step title="View the Login Interface">
+    You'll see a clean, modern login interface with the Laravel branding and authentication form. The interface adapts to both light and dark modes based on your system preferences.
+  </Step>
+  
+  <Step title="Enter Your Credentials">
+    Input your username or email address and password in the provided fields.
+  </Step>
+  
+  <Step title="Submit and Authenticate">
+    Click the login button to authenticate. Upon successful login, you'll be redirected to the dashboard.
+  </Step>
+</Steps>
+
+## Interface Features
+
+### Responsive Design
+
+The login page is fully responsive and works seamlessly across different devices:
+
+- **Mobile devices**: Optimized for screens as small as 335px wide
+- **Tablets**: Adapts to medium-sized screens
+- **Desktop**: Full-width layout with centered content (max-width: 4xl)
+
+<Note>
+  The interface automatically adjusts to your device's screen size for optimal usability.
+</Note>
+
+### Dark Mode Support
+
+The login page includes built-in dark mode support:
+
+- **Light mode**: Clean white background (`#FDFDFC`) with dark text (`#1b1b18`)
+- **Dark mode**: Dark background (`#0a0a0a`) that automatically activates based on system preferences
+
+### Visual Elements
+
+The login page features:
+
+- Laravel 12 logo with animated graphics
+- Smooth transitions and animations (750ms duration)
+- Shadow effects for depth and visual hierarchy
+- Color-coded alert components for feedback
+
+## Alert Components
+
+The interface includes several alert types for user feedback:
+
+<AccordionGroup>
+  <Accordion title="Info Alert">
+    Blue-branded alerts for informational messages:
+    ```html
+    <div class="p-4 mb-4 text-sm text-fg-brand-strong rounded-base bg-brand-softer" role="alert">
+      <span class="font-medium">Info alert!</span> Message content here.
+    </div>
+    ```
+  </Accordion>
+  
+  <Accordion title="Danger Alert">
+    Red alerts for errors and critical messages:
+    ```html
+    <div class="p-4 mb-4 text-sm text-fg-danger-strong rounded-base bg-danger-soft" role="alert">
+      <span class="font-medium">Danger alert!</span> Error message here.
+    </div>
+    ```
+  </Accordion>
+  
+  <Accordion title="Success Alert">
+    Green alerts for successful operations:
+    ```html
+    <div class="p-4 mb-4 text-sm text-fg-success-strong rounded-base bg-success-soft" role="alert">
+      <span class="font-medium">Success alert!</span> Success message here.
+    </div>
+    ```
+  </Accordion>
+  
+  <Accordion title="Warning Alert">
+    Yellow/amber alerts for warnings:
+    ```html
+    <div class="p-4 mb-4 text-sm text-fg-warning rounded-base bg-warning-soft" role="alert">
+      <span class="font-medium">Warning alert!</span> Warning message here.
+    </div>
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Navigation After Login
+
+Once authenticated, you have several navigation options:
+
+- **Dashboard**: Main administrative interface (accessible at `/dashboard`)
+- **Register**: If enabled, allows new user registration
+- **Logout**: Sign out of your session
+
+<Info>
+  The navigation menu dynamically changes based on your authentication status, showing relevant options only.
+</Info>
+
+## Troubleshooting
+
+### Common Login Issues
+
+<AccordionGroup>
+  <Accordion title="Invalid Credentials">
+    If you see a danger alert about invalid credentials:
+    - Double-check your username/email
+    - Verify your password (check Caps Lock)
+    - Contact your administrator if you've forgotten your credentials
+  </Accordion>
+  
+  <Accordion title="Page Not Loading">
+    If the login page doesn't load:
+    - Check your internet connection
+    - Verify the application URL is correct
+    - Clear your browser cache and cookies
+    - Try a different browser
+  </Accordion>
+  
+  <Accordion title="Visual Issues">
+    If the interface looks broken:
+    - Ensure JavaScript is enabled in your browser
+    - Clear browser cache
+    - Update your browser to the latest version
+  </Accordion>
+</AccordionGroup>
+
+## Security Best Practices
+
+<Warning>
+  Always follow these security guidelines when logging in:
+</Warning>
+
+- Never share your login credentials
+- Use a strong, unique password
+- Log out when using shared computers
+- Be aware of phishing attempts
+- Report suspicious activity to your administrator
+
+## Typography and Fonts
+
+The login interface uses the **Instrument Sans** font family for a modern, clean appearance:
+
+```html
+<link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
+```
+
+Font weights used:
+- **400**: Regular text
+- **500**: Medium weight for emphasis
+- **600**: Semibold for headings
+
+<Tip>
+  The interface automatically falls back to system fonts if the web font fails to load, ensuring readability in all scenarios.
+</Tip>
+
+## Next Steps
+
+After successfully logging in:
+
+1. Explore the [Dashboard](/guides/dashboard) to understand the main administrative interface
+2. Learn about [Customization](/guides/customization) options to tailor the interface
+3. Review the [User Management](/features/user-management) features

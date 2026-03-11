@@ -1,0 +1,322 @@
+---
+title: UI Components
+description: Explore the Flowbite UI components integrated into Solare Admin View for modern, accessible interfaces
+---
+
+## Overview
+
+Solare Admin View uses Flowbite, a component library built on top of Tailwind CSS, to create beautiful and accessible user interfaces. Flowbite provides pre-designed components that follow best practices for accessibility and responsive design.
+
+## Flowbite Integration
+
+Flowbite is integrated into the project through the CSS configuration at `resources/css/app.css:2`:
+
+```css
+@import "tailwindcss";
+@import "flowbite/src/themes/default";
+
+@source "../../resources/views/**/*.blade.php";
+@source "../../resources/js/**/*.js";
+@source "../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php";
+
+@plugin "flowbite/plugin";
+
+@theme {
+    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol', 'Noto Color Emoji';
+}
+```
+
+<Note>
+The configuration imports Flowbite's default theme and registers the Flowbite plugin, making all components available throughout the application.
+</Note>
+
+## Alert Components
+
+Flowbite alerts are used extensively in the login screen to display various types of feedback messages. Here are the alert variants available in the application (from `resources/views/loginScreen/login.blade.php:14`):
+
+### Info Alert
+
+```html
+<div class="p-4 mb-4 text-sm text-fg-brand-strong rounded-base bg-brand-softer" role="alert">
+  <span class="font-medium">Info alert!</span> Change a few things up and try submitting again.
+</div>
+```
+
+<div className="p-4 mb-4 text-sm rounded-lg bg-blue-50 text-blue-800">
+  <span className="font-medium">Info alert!</span> Change a few things up and try submitting again.
+</div>
+
+### Danger Alert
+
+```html
+<div class="p-4 mb-4 text-sm text-fg-danger-strong rounded-base bg-danger-soft" role="alert">
+  <span class="font-medium">Danger alert!</span> Change a few things up and try submitting again.
+</div>
+```
+
+<div className="p-4 mb-4 text-sm rounded-lg bg-red-50 text-red-800">
+  <span className="font-medium">Danger alert!</span> Change a few things up and try submitting again.
+</div>
+
+### Success Alert
+
+```html
+<div class="p-4 mb-4 text-sm text-fg-success-strong rounded-base bg-success-soft" role="alert">
+  <span class="font-medium">Success alert!</span> Change a few things up and try submitting again.
+</div>
+```
+
+<div className="p-4 mb-4 text-sm rounded-lg bg-green-50 text-green-800">
+  <span className="font-medium">Success alert!</span> Change a few things up and try submitting again.
+</div>
+
+### Warning Alert
+
+```html
+<div class="p-4 mb-4 text-sm text-fg-warning rounded-base bg-warning-soft" role="alert">
+  <span class="font-medium">Warning alert!</span> Change a few things up and try submitting again.
+</div>
+```
+
+<div className="p-4 mb-4 text-sm rounded-lg bg-yellow-50 text-yellow-800">
+  <span className="font-medium">Warning alert!</span> Change a few things up and try submitting again.
+</div>
+
+### Dark Alert
+
+```html
+<div class="p-4 text-sm text-heading rounded-base bg-neutral-secondary-medium" role="alert">
+  <span class="font-medium">Dark alert!</span> Change a few things up and try submitting again.
+</div>
+```
+
+<div className="p-4 mb-4 text-sm rounded-lg bg-gray-100 text-gray-800">
+  <span className="font-medium">Dark alert!</span> Change a few things up and try submitting again.
+</div>
+
+## Alert Design System
+
+The alerts use a custom design system with semantic color tokens:
+
+<CardGroup cols={2}>
+  <Card title="Brand Colors" icon="palette">
+    `text-fg-brand-strong` and `bg-brand-softer` for informational messages
+  </Card>
+  
+  <Card title="Danger Colors" icon="triangle-exclamation">
+    `text-fg-danger-strong` and `bg-danger-soft` for error messages
+  </Card>
+  
+  <Card title="Success Colors" icon="check">
+    `text-fg-success-strong` and `bg-success-soft` for success messages
+  </Card>
+  
+  <Card title="Warning Colors" icon="exclamation">
+    `text-fg-warning` and `bg-warning-soft` for warning messages
+  </Card>
+</CardGroup>
+
+## Typography
+
+The project uses the Instrument Sans font family with fallbacks:
+
+```css
+--font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 
+             'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 
+             'Noto Color Emoji';
+```
+
+<Note>
+The font stack includes emoji support to ensure consistent rendering across different platforms.
+</Note>
+
+## Accessibility Features
+
+Flowbite components in Solare Admin View follow accessibility best practices:
+
+<Steps>
+  <Step title="ARIA Roles">
+    All alerts include `role="alert"` to announce important messages to screen readers.
+  </Step>
+  
+  <Step title="Semantic Colors">
+    Color choices meet WCAG contrast requirements for readability.
+  </Step>
+  
+  <Step title="Keyboard Navigation">
+    Interactive components are fully accessible via keyboard.
+  </Step>
+  
+  <Step title="Focus Management">
+    Visible focus indicators help keyboard users navigate the interface.
+  </Step>
+</Steps>
+
+## Component Usage Guidelines
+
+### When to Use Each Alert Type
+
+<Accordion title="Info Alerts">
+  Use info alerts for neutral, informational messages that don't require immediate action. Examples:
+  - Feature announcements
+  - Helpful tips
+  - General notifications
+</Accordion>
+
+<Accordion title="Danger Alerts">
+  Use danger alerts for errors and critical issues that require attention. Examples:
+  - Form validation errors
+  - Failed operations
+  - Security warnings
+</Accordion>
+
+<Accordion title="Success Alerts">
+  Use success alerts to confirm successful operations. Examples:
+  - Successful form submissions
+  - Completed actions
+  - Saved changes
+</Accordion>
+
+<Accordion title="Warning Alerts">
+  Use warning alerts for potentially problematic situations. Examples:
+  - Upcoming deadlines
+  - Resource limitations
+  - Deprecated features
+</Accordion>
+
+<Accordion title="Dark Alerts">
+  Use dark alerts for secondary information with reduced emphasis. Examples:
+  - Contextual help text
+  - Optional information
+  - Supplementary details
+</Accordion>
+
+## Styling Classes Breakdown
+
+```css
+/* Base alert structure */
+p-4           /* Padding on all sides */
+mb-4          /* Margin bottom */
+text-sm       /* Small text size */
+rounded-base  /* Base border radius */
+
+/* Color variations */
+text-fg-brand-strong    /* Brand foreground color */
+bg-brand-softer         /* Brand background color */
+text-fg-danger-strong   /* Danger foreground color */
+bg-danger-soft          /* Danger background color */
+text-fg-success-strong  /* Success foreground color */
+bg-success-soft         /* Success background color */
+
+/* Typography */
+font-medium   /* Medium font weight for emphasis */
+```
+
+## Blade Template Integration
+
+The login view at `resources/views/loginScreen/login.blade.php:11` uses Blade's templating features:
+
+```blade
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi App con Flowbite</title>
+    
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+</head>
+<body>
+    @yield('content')
+    
+    <!-- Alert components -->
+</body>
+</html>
+```
+
+<Note>
+The `@vite` directive automatically includes the compiled CSS and JavaScript assets, ensuring Flowbite components are properly styled and functional.
+</Note>
+
+## Responsive Design
+
+All Flowbite components are responsive by default. The design system adapts to different screen sizes:
+
+```html
+<!-- Example: Responsive padding -->
+<div class="p-4 md:p-6 lg:p-8">
+  Content adapts padding based on screen size
+</div>
+```
+
+## Dynamic Alerts in Laravel
+
+You can dynamically render alerts based on session data:
+
+```blade
+@if (session('success'))
+    <div class="p-4 mb-4 text-sm text-fg-success-strong rounded-base bg-success-soft" role="alert">
+        <span class="font-medium">Success!</span> {{ session('success') }}
+    </div>
+@endif
+
+@if (session('error'))
+    <div class="p-4 mb-4 text-sm text-fg-danger-strong rounded-base bg-danger-soft" role="alert">
+        <span class="font-medium">Error!</span> {{ session('error') }}
+    </div>
+@endif
+```
+
+## Customization
+
+You can customize Flowbite components by extending the theme configuration:
+
+```css
+@theme {
+    /* Custom colors */
+    --color-brand-primary: #your-color;
+    
+    /* Custom fonts */
+    --font-sans: 'Your Font', sans-serif;
+    
+    /* Custom spacing */
+    --spacing-base: 1rem;
+}
+```
+
+## Best Practices
+
+<Steps>
+  <Step title="Use Semantic Colors">
+    Choose alert types based on message semantics, not visual preference.
+  </Step>
+  
+  <Step title="Keep Messages Concise">
+    Alert messages should be brief and actionable.
+  </Step>
+  
+  <Step title="Include Actions">
+    When appropriate, provide buttons or links for users to resolve issues.
+  </Step>
+  
+  <Step title="Test Accessibility">
+    Always test components with screen readers and keyboard navigation.
+  </Step>
+</Steps>
+
+<Warning>
+Avoid using too many alerts on a single page. Multiple alerts can overwhelm users and reduce their effectiveness.
+</Warning>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Authentication" icon="lock" href="/features/authentication">
+    Learn about the authentication system
+  </Card>
+  
+  <Card title="User Management" icon="users" href="/features/user-management">
+    Manage users in the system
+  </Card>
+</CardGroup>

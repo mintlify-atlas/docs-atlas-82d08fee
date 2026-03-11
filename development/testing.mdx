@@ -1,0 +1,556 @@
+---
+title: Testing with Pest PHP
+description: Learn how to write and run tests for Solare Admin View using Pest PHP testing framework
+---
+
+## Overview
+
+Solare Admin View uses [Pest PHP](https://pestphp.com/), a delightful testing framework with a focus on simplicity and elegant syntax. Pest is built on top of PHPUnit and provides a more expressive way to write tests.
+
+## Test Configuration
+
+The testing environment is configured in `phpunit.xml`:
+
+```xml phpunit.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
+         bootstrap="vendor/autoload.php"
+         colors="true"
+>
+    <testsuites>
+        <testsuite name="Unit">
+            <directory>tests/Unit</directory>
+        </testsuite>
+        <testsuite name="Feature">
+            <directory>tests/Feature</directory>
+        </testsuite>
+    </testsuites>
+    <source>
+        <include>
+            <directory>app</directory>
+        </include>
+    </source>
+    <php>
+        <env name="APP_ENV" value="testing"/>
+        <env name="DB_CONNECTION" value="sqlite"/>
+        <env name="DB_DATABASE" value=":memory:"/>
+        <env name="CACHE_STORE" value="array"/>
+        <env name="SESSION_DRIVER" value="array"/>
+        <env name="QUEUE_CONNECTION" value="sync"/>
+    </php>
+</phpunit>
+```
+
+<Note>
+The test environment uses SQLite in-memory database for fast, isolated tests without affecting your development database.
+</Note>
+
+## Test Structure
+
+Tests are organized into two main directories:
+
+- **`tests/Unit/`** - Unit tests for individual classes and methods
+- **`tests/Feature/`** - Feature tests for HTTP requests and application workflows
+
+### Pest Configuration
+
+The `tests/Pest.php` file configures Pest for your Laravel application:
+
+```php tests/Pest.php
+<?php
+
+pest()->extend(Tests\TestCase::class)
+    ->in('Feature');
+
+// Custom expectations
+expect()->extend('toBeOne', function () {
+    return $this->toBe(1);
+});
+
+// Helper functions
+function something()
+{
+    // Your custom test helpers
+}
+```
+
+## Running Tests
+
+<Steps>
+
+<Step title="Run all tests">
+
+```bash
+php artisan test
+```
+
+Or use Composer:
+
+```bash
+composer test
+```
+
+</Step>
+
+<Step title="Run specific test suites">
+
+```bash
+# Run only unit tests
+php artisan test --testsuite=Unit
+
+# Run only feature tests
+php artisan test --testsuite=Feature
+```
+
+</Step>
+
+<Step title="Run specific test files">
+
+```bash
+# Run a specific test file
+php artisan test tests/Feature/ExampleTest.php
+
+# Run with Pest directly
+./vendor/bin/pest tests/Feature/ExampleTest.php
+```
+
+</Step>
+
+<Step title="Run tests with coverage">
+
+```bash
+php artisan test --coverage
+
+# Require minimum coverage percentage
+php artisan test --coverage --min=80
+```
+
+</Step>
+
+</Steps>
+
+## Writing Unit Tests
+
+Unit tests focus on testing individual methods and classes in isolation.
+
+### Basic Unit Test Example
+
+```php tests/Unit/ExampleTest.php
+<?php
+
+test('that true is true', function () {
+    expect(true)->toBeTrue();
+});
+
+test('basic math works', function () {
+    expect(2 + 2)->toBe(4);
+});
+```
+
+### Testing Models
+
+```php tests/Unit/UserTest.php
+<?php
+
+use App\Models\User;
+
+test('user has fillable attributes', function () {
+    $user = new User();
+    
+    expect($user->getFillable())->toContain('name', 'email', 'password');
+});
+
+test('user hides password and remember token', function () {
+    $user = new User();
+    
+    expect($user->getHidden())->toContain('password', 'remember_token');
+});
+
+test('user casts email_verified_at to datetime', function () {
+    $user = new User();
+    
+    expect($user->getCasts())->toHaveKey('email_verified_at', 'datetime');
+});
+```
+
+### Testing Services and Classes
+
+```php tests/Unit/CalculatorTest.php
+<?php
+
+use App\Services\Calculator;
+
+beforeEach(function () {
+    $this->calculator = new Calculator();
+});
+
+test('calculator adds two numbers', function () {
+    $result = $this->calculator->add(5, 3);
+    
+    expect($result)->toBe(8);
+});
+
+test('calculator divides numbers', function () {
+    $result = $this->calculator->divide(10, 2);
+    
+    expect($result)->toBe(5);
+});
+
+test('calculator throws exception on division by zero', function () {
+    $this->calculator->divide(10, 0);
+})->throws(DivisionByZeroError::class);
+```
+
+## Writing Feature Tests
+
+Feature tests test your application's HTTP layer, including routes, controllers, and middleware.
+
+### Basic HTTP Test
+
+```php tests/Feature/ExampleTest.php
+<?php
+
+test('the application returns a successful response', function () {
+    $response = $this->get('/');
+
+    $response->assertStatus(200);
+});
+```
+
+### Testing User Authentication
+
+```php tests/Feature/Auth/LoginTest.php
+<?php
+
+use App\Models\User;
+
+test('users can login with valid credentials', function () {
+    $user = User::factory()->create([
+        'email' => 'test@example.com',
+        'password' => bcrypt('password123'),
+    ]);
+
+    $response = $this->post('/login', [
+        'email' => 'test@example.com',
+        'password' => 'password123',
+    ]);
+
+    $response->assertRedirect('/dashboard');
+    $this->assertAuthenticatedAs($user);
+});
+
+test('users cannot login with invalid credentials', function () {
+    $response = $this->post('/login', [
+        'email' => 'test@example.com',
+        'password' => 'wrong-password',
+    ]);
+
+    $response->assertSessionHasErrors('email');
+    $this->assertGuest();
+});
+```
+
+### Testing CRUD Operations
+
+```php tests/Feature/PostManagementTest.php
+<?php
+
+use App\Models\User;
+use App\Models\Post;
+
+test('authenticated users can create posts', function () {
+    $user = User::factory()->create();
+
+    $response = $this->actingAs($user)
+        ->post('/posts', [
+            'title' => 'Test Post',
+            'content' => 'This is test content.',
+        ]);
+
+    $response->assertRedirect();
+    
+    expect(Post::count())->toBe(1);
+    expect(Post::first()->title)->toBe('Test Post');
+});
+
+test('guests cannot create posts', function () {
+    $response = $this->post('/posts', [
+        'title' => 'Test Post',
+        'content' => 'This is test content.',
+    ]);
+
+    $response->assertRedirect('/login');
+    expect(Post::count())->toBe(0);
+});
+```
+
+### Testing with Database
+
+```php tests/Feature/DatabaseTest.php
+<?php
+
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+
+uses(RefreshDatabase::class);
+
+test('users can be created in database', function () {
+    $user = User::create([
+        'name' => 'John Doe',
+        'email' => 'john@example.com',
+        'password' => bcrypt('password'),
+    ]);
+
+    expect($user->exists)->toBeTrue();
+    
+    $this->assertDatabaseHas('users', [
+        'email' => 'john@example.com',
+    ]);
+});
+```
+
+<Warning>
+Always use `RefreshDatabase` trait in feature tests that interact with the database to ensure test isolation.
+</Warning>
+
+## Pest Expectations
+
+Pest provides an expressive expectations API:
+
+```php
+// Value expectations
+expect($value)->toBe(100);
+expect($value)->toEqual($expected);
+expect($value)->toBeTrue();
+expect($value)->toBeFalse();
+expect($value)->toBeNull();
+expect($value)->toBeEmpty();
+
+// Type expectations
+expect($value)->toBeInt();
+expect($value)->toBeString();
+expect($value)->toBeArray();
+expect($value)->toBeObject();
+
+// Collection expectations
+expect($array)->toHaveCount(3);
+expect($array)->toContain('value');
+expect($array)->toHaveKey('key');
+
+// String expectations
+expect($string)->toStartWith('Hello');
+expect($string)->toEndWith('World');
+expect($string)->toContain('substring');
+expect($string)->toMatch('/pattern/');
+
+// Numeric expectations
+expect($number)->toBeGreaterThan(10);
+expect($number)->toBeLessThan(100);
+expect($number)->toBeBetween(10, 100);
+```
+
+## Dataset Testing
+
+Test the same logic with different inputs using datasets:
+
+```php
+test('numbers are even', function (int $number) {
+    expect($number % 2)->toBe(0);
+})->with([2, 4, 6, 8, 10]);
+
+test('emails are valid', function (string $email) {
+    expect(filter_var($email, FILTER_VALIDATE_EMAIL))->toBeString();
+})->with([
+    'user@example.com',
+    'admin@test.com',
+    'contact@domain.org',
+]);
+```
+
+## Test Hooks
+
+Use hooks to set up and tear down test state:
+
+```php
+beforeEach(function () {
+    // Runs before each test
+    $this->user = User::factory()->create();
+});
+
+afterEach(function () {
+    // Runs after each test
+    // Clean up resources
+});
+
+beforeAll(function () {
+    // Runs once before all tests in the file
+});
+
+afterAll(function () {
+    // Runs once after all tests in the file
+});
+```
+
+## Mocking and Faking
+
+Laravel provides excellent testing fakes for external services:
+
+```php
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Queue;
+use Illuminate\Support\Facades\Storage;
+
+test('email is sent on user registration', function () {
+    Mail::fake();
+
+    // Perform registration
+    $response = $this->post('/register', [
+        'name' => 'John Doe',
+        'email' => 'john@example.com',
+        'password' => 'password',
+    ]);
+
+    Mail::assertSent(WelcomeEmail::class);
+});
+
+test('job is dispatched', function () {
+    Queue::fake();
+
+    // Perform action that dispatches job
+    dispatch(new ProcessOrder($order));
+
+    Queue::assertPushed(ProcessOrder::class);
+});
+
+test('file is uploaded', function () {
+    Storage::fake('public');
+
+    $response = $this->post('/upload', [
+        'file' => UploadedFile::fake()->image('photo.jpg'),
+    ]);
+
+    Storage::disk('public')->assertExists('photos/photo.jpg');
+});
+```
+
+## Continuous Integration
+
+Add testing to your CI/CD pipeline:
+
+```yaml .github/workflows/tests.yml
+name: Tests
+
+on: [push, pull_request]
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.2
+          extensions: mbstring, sqlite3
+          
+      - name: Install Dependencies
+        run: composer install --no-interaction --prefer-dist
+        
+      - name: Run Tests
+        run: php artisan test
+```
+
+## Best Practices
+
+<AccordionGroup>
+
+<Accordion title="Test Naming">
+
+Use descriptive test names that explain what is being tested:
+
+```php
+// Good
+test('authenticated users can create posts');
+test('guests are redirected to login');
+
+// Bad
+test('test1');
+test('create post');
+```
+
+</Accordion>
+
+<Accordion title="Arrange-Act-Assert Pattern">
+
+Structure your tests with clear sections:
+
+```php
+test('user can update their profile', function () {
+    // Arrange
+    $user = User::factory()->create();
+    
+    // Act
+    $response = $this->actingAs($user)
+        ->patch('/profile', ['name' => 'New Name']);
+    
+    // Assert
+    $response->assertRedirect();
+    expect($user->fresh()->name)->toBe('New Name');
+});
+```
+
+</Accordion>
+
+<Accordion title="Test Isolation">
+
+Each test should be independent and not rely on other tests:
+
+```php
+// Use RefreshDatabase for database tests
+uses(RefreshDatabase::class);
+
+// Create fresh data in each test
+test('example', function () {
+    $user = User::factory()->create();
+    // Test logic
+});
+```
+
+</Accordion>
+
+<Accordion title="Factory Usage">
+
+Use factories instead of manually creating models:
+
+```php
+// Good
+$user = User::factory()->create();
+
+// Bad
+$user = User::create([
+    'name' => 'Test User',
+    'email' => 'test@example.com',
+    'password' => bcrypt('password'),
+]);
+```
+
+</Accordion>
+
+</AccordionGroup>
+
+## Related Resources
+
+<CardGroup cols={2}>
+
+<Card title="Pest PHP Documentation" icon="flask" href="https://pestphp.com/docs">
+  Official Pest PHP documentation
+</Card>
+
+<Card title="Laravel Testing" icon="laravel" href="https://laravel.com/docs/testing">
+  Laravel testing documentation
+</Card>
+
+</CardGroup>

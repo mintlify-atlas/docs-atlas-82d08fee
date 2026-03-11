@@ -1,80 +1,318 @@
 ---
-title: "Quickstart"
-description: "Start building awesome documentation in minutes"
+title: Quickstart
+description: Get Solare Admin View up and running in under 5 minutes
 ---
 
-## Get started in three steps
+## Prerequisites
 
-Get your documentation site running locally and make your first customization.
-
-### Step 1: Set up your local environment
-
-<AccordionGroup>
-  <Accordion icon="copy" title="Clone your docs locally">
-    During the onboarding process, you created a GitHub repository with your docs content if you didn't already have one. You can find a link to this repository in your [dashboard](https://dashboard.mintlify.com).
-    
-    To clone the repository locally so that you can make and preview changes to your docs, follow the [Cloning a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) guide in the GitHub docs.
-  </Accordion>
-  <Accordion icon="rectangle-terminal" title="Start the preview server">
-    1. Install the Mintlify CLI: `npm i -g mint`
-    2. Navigate to your docs directory and run: `mint dev`
-    3. Open `http://localhost:3000` to see your docs live!
-    
-    <Tip>Your preview updates automatically as you edit files.</Tip>
-  </Accordion>
-</AccordionGroup>
-
-### Step 2: Deploy your changes
-
-<AccordionGroup>
-  <Accordion icon="github" title="Install our GitHub app">
-    Install the Mintlify GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app).
-    
-    Our GitHub app automatically deploys your changes to your docs site, so you don't need to manage deployments yourself.
-</Accordion>
-<Accordion icon="palette" title="Update your site name and colors">
-    For a first change, let's update the name and colors of your docs site.
-
-    1. Open `docs.json` in your editor.
-    2. Change the `"name"` field to your project name.
-    3. Update the `"colors"` to match your brand.
-    4. Save and see your changes instantly at `http://localhost:3000`.
-
-    <Tip>Try changing the primary color to see an immediate difference!</Tip>
-  </Accordion>
-</AccordionGroup>
-
-### Step 3: Go live
-
-<Accordion icon="rocket" title="Publish your docs">
-  1. Commit and push your changes.
-  2. Your docs will update and be live in moments!
-</Accordion>
-
-## Next steps
-
-Now that you have your docs running, explore these key features:
+Before you begin, ensure you have the following installed on your system:
 
 <CardGroup cols={2}>
-
-<Card title="Write Content" icon="pen-to-square" href="/essentials/markdown">
-  Learn MDX syntax and start writing your documentation.
-</Card>
-
-<Card title="Customize style" icon="palette" href="/essentials/settings">
-  Make your docs match your brand perfectly.
-</Card>
-
-<Card title="Add code examples" icon="square-code" href="/essentials/code">
-  Include syntax-highlighted code blocks.
-</Card>
-
-<Card title="API documentation" icon="code" href="/api-reference/introduction">
-  Auto-generate API docs from OpenAPI specs.
-</Card>
-
+  <Card title="PHP 8.2+" icon="php">
+    Required for Laravel 12
+  </Card>
+  <Card title="Composer" icon="box">
+    PHP dependency manager
+  </Card>
+  <Card title="Node.js 18+" icon="node-js">
+    Required for Vite and npm packages
+  </Card>
+  <Card title="MariaDB/MySQL" icon="database">
+    Database server
+  </Card>
 </CardGroup>
 
 <Note>
-  **Need help?** See our [full documentation](https://mintlify.com/docs) or join our [community](https://mintlify.com/community).
+You can verify your PHP version by running `php -v` and Node.js version with `node -v` in your terminal.
+</Note>
+
+## Installation
+
+<Steps>
+
+<Step title="Clone the Repository">
+  Clone the Solare Admin View repository to your local machine:
+
+  ```bash
+  git clone <repository-url> solare-admin-view
+  cd solare-admin-view
+  ```
+</Step>
+
+<Step title="Run the Setup Script">
+  Solare Admin View includes a convenient Composer script that handles all setup tasks automatically:
+
+  ```bash
+  composer setup
+  ```
+
+  This single command performs the following operations:
+  - Installs all PHP dependencies via `composer install`
+  - Copies `.env.example` to `.env` (if not already present)
+  - Generates application key with `php artisan key:generate`
+  - Runs database migrations with `php artisan migrate --force`
+  - Installs Node.js dependencies via `npm install`
+  - Builds frontend assets with `npm run build`
+
+  <Note>
+  The setup script streamlines the entire installation process. No need to run individual commands!
+  </Note>
+</Step>
+
+<Step title="Configure Your Database">
+  Open the `.env` file and configure your database connection:
+
+  ```bash .env
+  DB_CONNECTION=mariadb
+  DB_HOST=127.0.0.1
+  DB_PORT=3306
+  DB_DATABASE=solare
+  DB_USERNAME=root
+  DB_PASSWORD=your_password
+  ```
+
+  Make sure to create the database before running migrations:
+
+  ```bash
+  # MySQL/MariaDB
+  mysql -u root -p
+  CREATE DATABASE solare;
+  exit;
+  ```
+
+  If you need to run migrations again after database configuration:
+
+  ```bash
+  php artisan migrate
+  ```
+</Step>
+
+<Step title="Start the Development Server">
+  Solare Admin View provides a convenient dev script that runs all necessary services concurrently:
+
+  ```bash
+  composer dev
+  ```
+
+  This command starts three services simultaneously:
+  - **Laravel development server** on `http://localhost:8000`
+  - **Queue worker** for background job processing
+  - **Vite dev server** for hot module replacement (HMR)
+
+  <Tip>
+  The output is color-coded for easy identification:
+  - 🔵 Blue for the Laravel server
+  - 🟣 Purple for the queue worker
+  - 🟠 Orange for Vite
+  </Tip>
+</Step>
+
+<Step title="Access the Login Screen">
+  Open your browser and navigate to:
+
+  ```
+  http://localhost:8000
+  ```
+
+  You should see the Solare Admin View login screen with the Laravel 12 branding!
+
+  <Check>
+  If you see the login page, congratulations! Your installation is successful.
+  </Check>
+</Step>
+
+</Steps>
+
+## Alternative Development Commands
+
+If you prefer to run services individually, you can use these commands:
+
+<CodeGroup>
+
+```bash Laravel Server Only
+php artisan serve
+```
+
+```bash Vite Dev Server Only
+npm run dev
+```
+
+```bash Queue Worker Only
+php artisan queue:listen --tries=1
+```
+
+```bash Build Assets for Production
+npm run build
+```
+
+</CodeGroup>
+
+## Project Configuration
+
+### Application Settings
+
+Key configuration options in your `.env` file:
+
+```bash .env
+# Application
+APP_NAME=Laravel
+APP_ENV=local
+APP_DEBUG=true
+APP_URL=http://localhost
+
+# Session
+SESSION_DRIVER=database
+SESSION_LIFETIME=120
+
+# Queue
+QUEUE_CONNECTION=database
+
+# Cache
+CACHE_STORE=database
+```
+
+### Vite Configuration
+
+The Vite configuration is located at `vite.config.js`:
+
+```javascript vite.config.js
+import { defineConfig } from 'vite';
+import laravel from 'laravel-vite-plugin';
+import tailwindcss from '@tailwindcss/vite';
+
+export default defineConfig({
+    plugins: [
+        laravel({
+            input: ['resources/css/app.css', 'resources/js/app.js'],
+            refresh: true,
+        }),
+        tailwindcss(),
+    ],
+    server: {
+        watch: {
+            ignored: ['**/storage/framework/views/**'],
+        },
+    },
+});
+```
+
+<Note>
+The Tailwind CSS v4 Vite plugin is integrated directly, eliminating the need for PostCSS configuration.
+</Note>
+
+## Understanding the Routes
+
+The default route configuration in `routes/web.php` is minimal:
+
+```php routes/web.php
+use Illuminate\Support\Facades\Route;
+
+Route::get('/', function () {
+    return view('loginScreen.login');
+});
+```
+
+The root URL (`/`) displays the login view located at `resources/views/loginScreen/login.blade.php`.
+
+## Frontend Asset Structure
+
+### CSS Entry Point
+
+The main CSS file uses Tailwind CSS v4's new syntax:
+
+```css resources/css/app.css
+@import "tailwindcss";
+@import "flowbite/src/themes/default";
+
+@source "../../resources/views/**/*.blade.php";
+@source "../../resources/js/**/*.js";
+@source "../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php";
+
+@plugin "flowbite/plugin";
+
+@theme {
+    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
+}
+```
+
+### JavaScript Entry Point
+
+The main JavaScript file bootstraps Flowbite:
+
+```javascript resources/js/app.js
+import './bootstrap';
+import 'flowbite'; // Activates modals, dropdowns, etc.
+```
+
+## Testing Your Installation
+
+Run the test suite to verify everything is working correctly:
+
+```bash
+composer test
+```
+
+This command:
+1. Clears the configuration cache
+2. Runs the Pest PHP test suite
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Database Connection Error">
+    If you encounter database connection errors:
+    
+    1. Verify your database credentials in `.env`
+    2. Ensure the database exists: `CREATE DATABASE solare;`
+    3. Check that your database server is running
+    4. Run migrations: `php artisan migrate`
+  </Accordion>
+
+  <Accordion title="Vite Build Errors">
+    If Vite fails to build assets:
+    
+    1. Clear npm cache: `npm cache clean --force`
+    2. Delete `node_modules`: `rm -rf node_modules`
+    3. Reinstall dependencies: `npm install`
+    4. Rebuild assets: `npm run build`
+  </Accordion>
+
+  <Accordion title="Permission Issues">
+    Laravel requires write permissions for certain directories:
+    
+    ```bash
+    chmod -R 775 storage bootstrap/cache
+    ```
+  </Accordion>
+
+  <Accordion title="Port Already in Use">
+    If port 8000 is already in use, specify a different port:
+    
+    ```bash
+    php artisan serve --port=8080
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+Now that you have Solare Admin View running, you can:
+
+<CardGroup cols={2}>
+  <Card title="Customize the Theme" icon="palette">
+    Modify the Tailwind theme in `resources/css/app.css`
+  </Card>
+  <Card title="Add Authentication" icon="lock">
+    Implement Laravel's authentication features
+  </Card>
+  <Card title="Create Controllers" icon="code">
+    Build your admin panel controllers in `app/Http/Controllers`
+  </Card>
+  <Card title="Explore Flowbite" icon="sparkles" href="https://flowbite.com">
+    Discover available UI components
+  </Card>
+</CardGroup>
+
+<Note>
+For production deployment, remember to set `APP_ENV=production` and `APP_DEBUG=false` in your `.env` file.
 </Note>

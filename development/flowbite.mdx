@@ -1,0 +1,343 @@
+---
+title: Flowbite Components
+description: Learn how to use Flowbite component library with Tailwind CSS in Solare Admin View
+---
+
+## Overview
+
+Solare Admin View integrates **Flowbite v4**, a component library built on Tailwind CSS. Flowbite provides interactive components like modals, dropdowns, alerts, and more with minimal JavaScript.
+
+## Installation
+
+Flowbite is already installed in the project:
+
+```json package.json
+{
+  "devDependencies": {
+    "flowbite": "^4.0.1"
+  }
+}
+```
+
+## Configuration
+
+### CSS Setup
+
+Flowbite is imported and configured in `resources/css/app.css`:
+
+```css resources/css/app.css
+@import "tailwindcss";
+@import "flowbite/src/themes/default";
+
+@source "../../resources/views/**/*.blade.php";
+@source "../../resources/js/**/*.js";
+@source "../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php";
+
+@plugin "flowbite/plugin";
+```
+
+<Note>
+The `@plugin "flowbite/plugin"` directive loads the Flowbite Tailwind plugin, which adds custom utilities and component styles.
+</Note>
+
+### JavaScript Setup
+
+Flowbite's JavaScript is initialized in `resources/js/app.js`:
+
+```javascript resources/js/app.js
+import './bootstrap';
+import 'flowbite'; // Esto activa los modales, dropdowns, etc.
+```
+
+This import activates all interactive Flowbite components like modals, dropdowns, tooltips, etc.
+
+### Vite Configuration
+
+The legacy `tailwind.config.js` includes Flowbite's JavaScript files in the content scanning:
+
+```javascript tailwind.config.js
+export default {
+  content: [
+    "./resources/**/*.blade.php",
+    "./resources/**/*.js",
+    "./node_modules/flowbite/**/*.js"
+  ],
+  plugins: [
+    require('flowbite/plugin')
+  ],
+}
+```
+
+## Available Components
+
+### Alerts
+
+Flowbite provides styled alert components with semantic colors:
+
+```blade resources/views/loginScreen/login.blade.php
+<!-- Info Alert -->
+<div class="p-4 mb-4 text-sm text-fg-brand-strong rounded-base bg-brand-softer" role="alert">
+  <span class="font-medium">Info alert!</span> Change a few things up and try submitting again.
+</div>
+
+<!-- Danger Alert -->
+<div class="p-4 mb-4 text-sm text-fg-danger-strong rounded-base bg-danger-soft" role="alert">
+  <span class="font-medium">Danger alert!</span> Change a few things up and try submitting again.
+</div>
+
+<!-- Success Alert -->
+<div class="p-4 mb-4 text-sm text-fg-success-strong rounded-base bg-success-soft" role="alert">
+  <span class="font-medium">Success alert!</span> Change a few things up and try submitting again.
+</div>
+
+<!-- Warning Alert -->
+<div class="p-4 mb-4 text-sm text-fg-warning rounded-base bg-warning-soft" role="alert">
+  <span class="font-medium">Warning alert!</span> Change a few things up and try submitting again.
+</div>
+
+<!-- Dark Alert -->
+<div class="p-4 text-sm text-heading rounded-base bg-neutral-secondary-medium" role="alert">
+  <span class="font-medium">Dark alert!</span> Change a few things up and try submitting again.
+</div>
+```
+
+### Alert Color Tokens
+
+Flowbite v4 uses semantic color tokens instead of hardcoded Tailwind colors:
+
+<CodeGroup>
+
+```blade Brand Alert
+<div class="text-fg-brand-strong bg-brand-softer">
+  Brand colored alert
+</div>
+```
+
+```blade Danger Alert
+<div class="text-fg-danger-strong bg-danger-soft">
+  Danger/error alert
+</div>
+```
+
+```blade Success Alert
+<div class="text-fg-success-strong bg-success-soft">
+  Success alert
+</div>
+```
+
+```blade Warning Alert
+<div class="text-fg-warning bg-warning-soft">
+  Warning alert
+</div>
+```
+
+</CodeGroup>
+
+### Modals
+
+Flowbite includes interactive modal components. Here's a basic example:
+
+```blade
+<!-- Modal toggle button -->
+<button data-modal-target="default-modal" data-modal-toggle="default-modal" 
+        class="px-5 py-2.5 text-sm font-medium text-white bg-blue-700 hover:bg-blue-800 rounded-lg">
+  Toggle modal
+</button>
+
+<!-- Modal -->
+<div id="default-modal" tabindex="-1" aria-hidden="true" 
+     class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+    <div class="relative p-4 w-full max-w-2xl max-h-full">
+        <!-- Modal content -->
+        <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+            <!-- Modal header -->
+            <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
+                <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
+                    Modal Title
+                </h3>
+                <button type="button" data-modal-hide="default-modal">
+                    <svg class="w-3 h-3" fill="none" viewBox="0 0 14 14">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                    </svg>
+                </button>
+            </div>
+            <!-- Modal body -->
+            <div class="p-4 md:p-5 space-y-4">
+                <p class="text-base leading-relaxed text-gray-500 dark:text-gray-400">
+                    Modal content goes here.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+```
+
+### Dropdowns
+
+Create dropdown menus with Flowbite:
+
+```blade
+<!-- Dropdown button -->
+<button id="dropdownDefaultButton" data-dropdown-toggle="dropdown" 
+        class="px-5 py-2.5 text-sm font-medium text-white bg-blue-700 hover:bg-blue-800 rounded-lg">
+    Dropdown 
+    <svg class="w-2.5 h-2.5 ms-3" fill="none" viewBox="0 0 10 6">
+        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
+    </svg>
+</button>
+
+<!-- Dropdown menu -->
+<div id="dropdown" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700">
+    <ul class="py-2 text-sm text-gray-700 dark:text-gray-200">
+        <li>
+            <a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600">Dashboard</a>
+        </li>
+        <li>
+            <a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600">Settings</a>
+        </li>
+        <li>
+            <a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600">Sign out</a>
+        </li>
+    </ul>
+</div>
+```
+
+## Semantic Color System
+
+Flowbite v4 introduces a semantic color system with design tokens:
+
+### Foreground Colors
+
+- `text-fg-brand-strong` - Strong brand text color
+- `text-fg-danger-strong` - Strong danger/error text
+- `text-fg-success-strong` - Strong success text
+- `text-fg-warning` - Warning text color
+- `text-heading` - Heading text color
+
+### Background Colors
+
+- `bg-brand-softer` - Soft brand background
+- `bg-danger-soft` - Soft danger background
+- `bg-success-soft` - Soft success background
+- `bg-warning-soft` - Soft warning background
+- `bg-neutral-secondary-medium` - Neutral medium background
+
+### Border Radius
+
+- `rounded-base` - Base border radius from theme
+
+<Note>
+These semantic tokens ensure consistent theming across your application and make it easier to switch between themes.
+</Note>
+
+## Interactive Components
+
+Flowbite's JavaScript automatically initializes components with data attributes:
+
+### Data Attributes
+
+| Attribute | Purpose | Example |
+|-----------|---------|----------|
+| `data-modal-target` | Link button to modal | `data-modal-target="myModal"` |
+| `data-modal-toggle` | Toggle modal visibility | `data-modal-toggle="myModal"` |
+| `data-modal-hide` | Hide modal | `data-modal-hide="myModal"` |
+| `data-dropdown-toggle` | Toggle dropdown | `data-dropdown-toggle="dropdown"` |
+| `data-collapse-toggle` | Toggle collapse | `data-collapse-toggle="navbar"` |
+
+### JavaScript API
+
+You can also control Flowbite components programmatically:
+
+```javascript
+import { Modal } from 'flowbite';
+
+const modal = new Modal(document.getElementById('myModal'));
+modal.show();
+modal.hide();
+```
+
+## Integration with Blade
+
+### Including Assets
+
+In your Blade layout, include the compiled assets:
+
+```blade
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi App con Flowbite</title>
+    
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+</head>
+<body>
+    @yield('content')
+</body>
+</html>
+```
+
+### Using Blade Directives
+
+Combine Flowbite components with Blade directives:
+
+```blade
+@if (session('success'))
+    <div class="p-4 mb-4 text-sm text-fg-success-strong rounded-base bg-success-soft" role="alert">
+        <span class="font-medium">Success!</span> {{ session('success') }}
+    </div>
+@endif
+
+@if ($errors->any())
+    <div class="p-4 mb-4 text-sm text-fg-danger-strong rounded-base bg-danger-soft" role="alert">
+        <span class="font-medium">Error!</span>
+        <ul class="mt-2 ml-4 list-disc">
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
+```
+
+## Customization
+
+You can customize Flowbite's theme by modifying the imported theme:
+
+```css resources/css/app.css
+@import "flowbite/src/themes/default";
+
+@theme {
+    /* Override Flowbite colors */
+    --color-brand-500: oklch(0.5 0.2 250);
+    --color-danger-500: oklch(0.6 0.25 25);
+}
+```
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Use semantic color tokens">
+    Always use Flowbite's semantic color tokens (like `bg-brand-softer`) instead of direct Tailwind colors for better theme consistency.
+  </Accordion>
+
+  <Accordion title="Import Flowbite JavaScript">
+    Make sure to import Flowbite in your main JavaScript file to activate interactive components.
+  </Accordion>
+
+  <Accordion title="Use data attributes">
+    Flowbite components work best with data attributes like `data-modal-toggle` for declarative interactions.
+  </Accordion>
+
+  <Accordion title="Test dark mode">
+    Always test your Flowbite components in both light and dark modes to ensure proper styling.
+  </Accordion>
+</AccordionGroup>
+
+## Resources
+
+- [Flowbite Documentation](https://flowbite.com/docs)
+- [Flowbite Components](https://flowbite.com/docs/components)
+- [Flowbite GitHub](https://github.com/themesberg/flowbite)
+- [Tailwind CSS Integration](/development/tailwind)

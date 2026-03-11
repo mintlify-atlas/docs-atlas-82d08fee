@@ -1,0 +1,655 @@
+---
+title: Environment Variables
+description: Complete reference for all environment variables used in Solare Admin View
+---
+
+## Overview
+
+Environment variables are stored in the `.env` file at the root of your project. This file is created during installation by copying `.env.example`.
+
+<Warning>
+**Never commit your `.env` file to version control.** It contains sensitive credentials and configuration specific to your environment.
+</Warning>
+
+## Environment File Setup
+
+### Creating Your Environment File
+
+```bash
+# Copy example file
+cp .env.example .env
+
+# Generate application key
+php artisan key:generate
+```
+
+### File Structure
+
+The `.env` file uses a simple `KEY=VALUE` format:
+
+```env
+APP_NAME="Solare Admin"
+APP_ENV=local
+DB_DATABASE=solare
+```
+
+<Note>
+Values containing spaces should be enclosed in quotes. For boolean values, use `true` or `false`.
+</Note>
+
+## Application Settings
+
+### Core Application Variables
+
+<ParamField path="APP_NAME" type="string" default="Laravel">
+  The name of your application, used in notifications, emails, and UI elements.
+  
+  ```env
+  APP_NAME="Solare Admin"
+  ```
+</ParamField>
+
+<ParamField path="APP_ENV" type="string" default="production">
+  The application environment. Common values: `local`, `development`, `staging`, `production`.
+  
+  ```env
+  APP_ENV=local
+  ```
+</ParamField>
+
+<ParamField path="APP_KEY" type="string" required>
+  Application encryption key (32 characters). Generated automatically by `php artisan key:generate`.
+  
+  ```env
+  APP_KEY=base64:RandomGeneratedKey==
+  ```
+</ParamField>
+
+<ParamField path="APP_DEBUG" type="boolean" default="false">
+  Enable detailed error messages and stack traces. **Must be `false` in production.**
+  
+  ```env
+  APP_DEBUG=true
+  ```
+</ParamField>
+
+<ParamField path="APP_URL" type="string" default="http://localhost">
+  The base URL of your application.
+  
+  ```env
+  APP_URL=http://localhost
+  ```
+</ParamField>
+
+### Localization
+
+<ParamField path="APP_LOCALE" type="string" default="en">
+  Default application locale.
+  
+  ```env
+  APP_LOCALE=en
+  ```
+</ParamField>
+
+<ParamField path="APP_FALLBACK_LOCALE" type="string" default="en">
+  Fallback locale when the current locale is not available.
+  
+  ```env
+  APP_FALLBACK_LOCALE=en
+  ```
+</ParamField>
+
+<ParamField path="APP_FAKER_LOCALE" type="string" default="en_US">
+  Locale for Faker library used in database seeding and testing.
+  
+  ```env
+  APP_FAKER_LOCALE=en_US
+  ```
+</ParamField>
+
+### Maintenance Mode
+
+<ParamField path="APP_MAINTENANCE_DRIVER" type="string" default="file">
+  How maintenance mode status is stored. Options: `file`, `cache`.
+  
+  ```env
+  APP_MAINTENANCE_DRIVER=file
+  ```
+</ParamField>
+
+<ParamField path="APP_MAINTENANCE_STORE" type="string" default="database">
+  Cache store to use when maintenance driver is set to `cache`.
+  
+  ```env
+  # APP_MAINTENANCE_STORE=database
+  ```
+</ParamField>
+
+## Database Configuration
+
+### Connection Settings
+
+<ParamField path="DB_CONNECTION" type="string" default="mariadb">
+  Database driver to use. Options: `mariadb`, `mysql`, `pgsql`, `sqlite`, `sqlsrv`.
+  
+  ```env
+  DB_CONNECTION=mariadb
+  ```
+</ParamField>
+
+<ParamField path="DB_HOST" type="string" default="127.0.0.1">
+  Database server hostname or IP address.
+  
+  ```env
+  DB_HOST=127.0.0.1
+  ```
+</ParamField>
+
+<ParamField path="DB_PORT" type="integer" default="3306">
+  Database server port (3306 for MySQL/MariaDB, 5432 for PostgreSQL).
+  
+  ```env
+  DB_PORT=3306
+  ```
+</ParamField>
+
+<ParamField path="DB_DATABASE" type="string" default="solare">
+  Database name.
+  
+  ```env
+  DB_DATABASE=solare
+  ```
+</ParamField>
+
+<ParamField path="DB_USERNAME" type="string" default="root">
+  Database username.
+  
+  ```env
+  DB_USERNAME=root
+  ```
+</ParamField>
+
+<ParamField path="DB_PASSWORD" type="string">
+  Database password.
+  
+  ```env
+  DB_PASSWORD=
+  ```
+</ParamField>
+
+## Session Configuration
+
+<ParamField path="SESSION_DRIVER" type="string" default="database">
+  Where sessions are stored. Options: `file`, `cookie`, `database`, `redis`, `memcached`, `array`.
+  
+  ```env
+  SESSION_DRIVER=database
+  ```
+</ParamField>
+
+<ParamField path="SESSION_LIFETIME" type="integer" default="120">
+  Session lifetime in minutes.
+  
+  ```env
+  SESSION_LIFETIME=120
+  ```
+</ParamField>
+
+<ParamField path="SESSION_ENCRYPT" type="boolean" default="false">
+  Whether to encrypt session data.
+  
+  ```env
+  SESSION_ENCRYPT=false
+  ```
+</ParamField>
+
+<ParamField path="SESSION_PATH" type="string" default="/">
+  Session cookie path.
+  
+  ```env
+  SESSION_PATH=/
+  ```
+</ParamField>
+
+<ParamField path="SESSION_DOMAIN" type="string">
+  Session cookie domain.
+  
+  ```env
+  SESSION_DOMAIN=null
+  ```
+</ParamField>
+
+## Cache Configuration
+
+<ParamField path="CACHE_STORE" type="string" default="database">
+  Cache store driver. Options: `database`, `file`, `redis`, `memcached`, `array`.
+  
+  ```env
+  CACHE_STORE=database
+  ```
+</ParamField>
+
+<ParamField path="CACHE_PREFIX" type="string">
+  Prefix for cache keys (useful when sharing cache stores).
+  
+  ```env
+  # CACHE_PREFIX=
+  ```
+</ParamField>
+
+## Queue Configuration
+
+<ParamField path="QUEUE_CONNECTION" type="string" default="database">
+  Queue driver. Options: `sync`, `database`, `redis`, `sqs`, `beanstalkd`.
+  
+  ```env
+  QUEUE_CONNECTION=database
+  ```
+</ParamField>
+
+<ParamField path="BROADCAST_CONNECTION" type="string" default="log">
+  Broadcast driver for real-time events. Options: `log`, `redis`, `pusher`, `null`.
+  
+  ```env
+  BROADCAST_CONNECTION=log
+  ```
+</ParamField>
+
+## Filesystem Configuration
+
+<ParamField path="FILESYSTEM_DISK" type="string" default="local">
+  Default filesystem disk. Options: `local`, `public`, `s3`.
+  
+  ```env
+  FILESYSTEM_DISK=local
+  ```
+</ParamField>
+
+## Logging Configuration
+
+<ParamField path="LOG_CHANNEL" type="string" default="stack">
+  Logging channel. Options: `stack`, `single`, `daily`, `slack`, `syslog`, `errorlog`.
+  
+  ```env
+  LOG_CHANNEL=stack
+  ```
+</ParamField>
+
+<ParamField path="LOG_STACK" type="string" default="single">
+  Channels to use when LOG_CHANNEL is `stack`.
+  
+  ```env
+  LOG_STACK=single
+  ```
+</ParamField>
+
+<ParamField path="LOG_LEVEL" type="string" default="debug">
+  Minimum log level. Options: `debug`, `info`, `notice`, `warning`, `error`, `critical`, `alert`, `emergency`.
+  
+  ```env
+  LOG_LEVEL=debug
+  ```
+</ParamField>
+
+<ParamField path="LOG_DEPRECATIONS_CHANNEL" type="string">
+  Separate channel for deprecation warnings.
+  
+  ```env
+  LOG_DEPRECATIONS_CHANNEL=null
+  ```
+</ParamField>
+
+## Mail Configuration
+
+<ParamField path="MAIL_MAILER" type="string" default="log">
+  Mail driver. Options: `smtp`, `sendmail`, `mailgun`, `ses`, `postmark`, `log`, `array`.
+  
+  ```env
+  MAIL_MAILER=log
+  ```
+</ParamField>
+
+<ParamField path="MAIL_HOST" type="string" default="127.0.0.1">
+  SMTP host (when using SMTP driver).
+  
+  ```env
+  MAIL_HOST=127.0.0.1
+  ```
+</ParamField>
+
+<ParamField path="MAIL_PORT" type="integer" default="2525">
+  SMTP port.
+  
+  ```env
+  MAIL_PORT=2525
+  ```
+</ParamField>
+
+<ParamField path="MAIL_USERNAME" type="string">
+  SMTP username.
+  
+  ```env
+  MAIL_USERNAME=null
+  ```
+</ParamField>
+
+<ParamField path="MAIL_PASSWORD" type="string">
+  SMTP password.
+  
+  ```env
+  MAIL_PASSWORD=null
+  ```
+</ParamField>
+
+<ParamField path="MAIL_FROM_ADDRESS" type="string" default="hello@example.com">
+  Default "from" email address.
+  
+  ```env
+  MAIL_FROM_ADDRESS="hello@example.com"
+  ```
+</ParamField>
+
+<ParamField path="MAIL_FROM_NAME" type="string">
+  Default "from" name (uses APP_NAME if not set).
+  
+  ```env
+  MAIL_FROM_NAME="${APP_NAME}"
+  ```
+</ParamField>
+
+<ParamField path="MAIL_SCHEME" type="string">
+  URL scheme for mail links.
+  
+  ```env
+  MAIL_SCHEME=null
+  ```
+</ParamField>
+
+## Redis Configuration
+
+<ParamField path="REDIS_CLIENT" type="string" default="phpredis">
+  Redis client library. Options: `phpredis`, `predis`.
+  
+  ```env
+  REDIS_CLIENT=phpredis
+  ```
+</ParamField>
+
+<ParamField path="REDIS_HOST" type="string" default="127.0.0.1">
+  Redis server hostname.
+  
+  ```env
+  REDIS_HOST=127.0.0.1
+  ```
+</ParamField>
+
+<ParamField path="REDIS_PASSWORD" type="string">
+  Redis server password.
+  
+  ```env
+  REDIS_PASSWORD=null
+  ```
+</ParamField>
+
+<ParamField path="REDIS_PORT" type="integer" default="6379">
+  Redis server port.
+  
+  ```env
+  REDIS_PORT=6379
+  ```
+</ParamField>
+
+## Memcached Configuration
+
+<ParamField path="MEMCACHED_HOST" type="string" default="127.0.0.1">
+  Memcached server hostname.
+  
+  ```env
+  MEMCACHED_HOST=127.0.0.1
+  ```
+</ParamField>
+
+## AWS Configuration
+
+<ParamField path="AWS_ACCESS_KEY_ID" type="string">
+  AWS access key ID (for S3, SES, etc.).
+  
+  ```env
+  AWS_ACCESS_KEY_ID=
+  ```
+</ParamField>
+
+<ParamField path="AWS_SECRET_ACCESS_KEY" type="string">
+  AWS secret access key.
+  
+  ```env
+  AWS_SECRET_ACCESS_KEY=
+  ```
+</ParamField>
+
+<ParamField path="AWS_DEFAULT_REGION" type="string" default="us-east-1">
+  AWS region.
+  
+  ```env
+  AWS_DEFAULT_REGION=us-east-1
+  ```
+</ParamField>
+
+<ParamField path="AWS_BUCKET" type="string">
+  S3 bucket name.
+  
+  ```env
+  AWS_BUCKET=
+  ```
+</ParamField>
+
+<ParamField path="AWS_USE_PATH_STYLE_ENDPOINT" type="boolean" default="false">
+  Use path-style S3 endpoints.
+  
+  ```env
+  AWS_USE_PATH_STYLE_ENDPOINT=false
+  ```
+</ParamField>
+
+## Security Configuration
+
+<ParamField path="BCRYPT_ROUNDS" type="integer" default="12">
+  Number of bcrypt hashing rounds (higher = more secure but slower).
+  
+  ```env
+  BCRYPT_ROUNDS=12
+  ```
+</ParamField>
+
+## Performance Configuration
+
+<ParamField path="PHP_CLI_SERVER_WORKERS" type="integer">
+  Number of PHP CLI server workers (PHP 8.1+).
+  
+  ```env
+  # PHP_CLI_SERVER_WORKERS=4
+  ```
+</ParamField>
+
+## Frontend Configuration
+
+<ParamField path="VITE_APP_NAME" type="string">
+  Application name for frontend use (auto-set from APP_NAME).
+  
+  ```env
+  VITE_APP_NAME="${APP_NAME}"
+  ```
+</ParamField>
+
+<Note>
+Any environment variable prefixed with `VITE_` is available in your frontend JavaScript code:
+```javascript
+const appName = import.meta.env.VITE_APP_NAME;
+```
+</Note>
+
+## Environment Examples
+
+### Local Development
+
+<CodeGroup>
+```env .env (Local)
+APP_NAME="Solare Admin"
+APP_ENV=local
+APP_DEBUG=true
+APP_URL=http://localhost:8000
+
+DB_CONNECTION=mariadb
+DB_DATABASE=solare_dev
+DB_USERNAME=root
+DB_PASSWORD=
+
+CACHE_STORE=file
+QUEUE_CONNECTION=sync
+MAIL_MAILER=log
+SESSION_DRIVER=file
+```
+</CodeGroup>
+
+### Production
+
+<CodeGroup>
+```env .env (Production)
+APP_NAME="Solare Admin"
+APP_ENV=production
+APP_DEBUG=false
+APP_URL=https://admin.example.com
+
+DB_CONNECTION=mariadb
+DB_HOST=db.example.com
+DB_DATABASE=solare_prod
+DB_USERNAME=solare_user
+DB_PASSWORD=super_secure_password
+
+CACHE_STORE=redis
+QUEUE_CONNECTION=redis
+SESSION_DRIVER=redis
+
+REDIS_HOST=redis.example.com
+REDIS_PASSWORD=redis_password
+
+MAIL_MAILER=smtp
+MAIL_HOST=smtp.mailtrap.io
+MAIL_PORT=587
+MAIL_USERNAME=your_username
+MAIL_PASSWORD=your_password
+MAIL_ENCRYPTION=tls
+
+LOG_LEVEL=warning
+```
+</CodeGroup>
+
+### Testing
+
+<CodeGroup>
+```env .env.testing
+APP_ENV=testing
+DB_CONNECTION=sqlite
+DB_DATABASE=:memory:
+CACHE_STORE=array
+QUEUE_CONNECTION=sync
+SESSION_DRIVER=array
+MAIL_MAILER=array
+```
+</CodeGroup>
+
+## Accessing Environment Variables
+
+### In Configuration Files
+
+```php
+'name' => env('APP_NAME', 'Default Value'),
+```
+
+### In Application Code
+
+```php
+// Using env() helper (not recommended in production with cached config)
+$appName = env('APP_NAME');
+
+// Using config() helper (recommended)
+$appName = config('app.name');
+```
+
+<Warning>
+When configuration is cached (`php artisan config:cache`), the `env()` function will return `null`. Always use the `config()` helper in your application code.
+</Warning>
+
+## Security Best Practices
+
+<Steps>
+  <Step title="Never commit .env file">
+    Add `.env` to your `.gitignore` file (already done in Laravel).
+  </Step>
+
+  <Step title="Use strong encryption keys">
+    Always generate a new `APP_KEY` using `php artisan key:generate`.
+  </Step>
+
+  <Step title="Disable debug mode in production">
+    Set `APP_DEBUG=false` to prevent information leakage.
+  </Step>
+
+  <Step title="Use environment-specific values">
+    Never use production credentials in development environments.
+  </Step>
+
+  <Step title="Restrict file permissions">
+    ```bash
+    chmod 600 .env
+    ```
+  </Step>
+</Steps>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Environment variables not loading">
+    Clear the configuration cache:
+    ```bash
+    php artisan config:clear
+    ```
+  </Accordion>
+
+  <Accordion title="Changes to .env not reflected">
+    If you've cached your configuration, you need to recache:
+    ```bash
+    php artisan config:cache
+    ```
+  </Accordion>
+
+  <Accordion title="env() returns null in production">
+    This is expected when configuration is cached. Use `config()` instead:
+    ```php
+    // Bad
+    $value = env('MY_VAR');
+    
+    // Good
+    $value = config('services.my_service.var');
+    ```
+  </Accordion>
+
+  <Accordion title="Syntax errors in .env file">
+    Ensure:
+    - No spaces around the `=` sign
+    - Quote values with spaces: `APP_NAME="My App"`
+    - No trailing commas or special characters
+    - Use `#` for comments on separate lines
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Configuration" icon="gear" href="/development/configuration">
+    Learn more about application configuration
+  </Card>
+  <Card title="Deployment" icon="rocket" href="/development/deployment">
+    Deploy your application to production
+  </Card>
+</CardGroup>

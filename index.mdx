@@ -1,97 +1,98 @@
 ---
-title: "Introduction"
-description: "Welcome to the new home for your documentation"
+title: "Solare Admin View"
+description: "A modern Laravel administrative interface built with Flowbite UI components and Tailwind CSS"
 ---
 
-## Setting up
+<div style={{background: '#040404', color: '#ffffff', padding: '60px 40px', borderRadius: '4px', marginBottom: '40px'}}>
+  <h1 style={{fontSize: '48px', fontWeight: '700', marginBottom: '20px', color: '#ffffff'}}>
+    Solare Admin View
+  </h1>
+  <p style={{fontSize: '20px', color: '#f79d72', marginBottom: '30px'}}>
+    A Laravel-based administrative interface with Flowbite UI components and Tailwind CSS
+  </p>
+  <div style={{display: 'flex', gap: '16px'}}>
+    <a href="/quickstart" style={{
+      background: '#ef370f',
+      color: '#ffffff',
+      padding: '12px 24px',
+      borderRadius: '4px',
+      textDecoration: 'none',
+      fontWeight: '600'
+    }}>
+      Get Started
+    </a>
+    <a href="https://github.com/S0l4lr3/solare-adminView" style={{
+      background: '#ffffff',
+      color: '#1a1a1a',
+      padding: '12px 24px',
+      borderRadius: '4px',
+      textDecoration: 'none',
+      fontWeight: '600'
+    }}>
+      View on GitHub
+    </a>
+  </div>
+</div>
 
-Get your documentation site up and running in minutes.
+## Key Features
 
-<Card
-  title="Start here"
-  icon="rocket"
-  href="/quickstart"
-  horizontal
->
-  Follow our three step quickstart guide.
-</Card>
+Solare Admin View provides a robust foundation for building administrative interfaces with modern web technologies.
 
-## Make it yours
-
-Design a docs site that looks great and empowers your users.
-
-<Columns cols={2}>
-  <Card
-    title="Edit locally"
-    icon="pen-to-square"
-    href="/development"
-  >
-    Edit your docs locally and preview them in real time.
+<CardGroup cols={2}>
+  <Card title="User Authentication" icon="lock" href="/features/authentication">
+    Secure user authentication system built on Laravel's authentication scaffolding
   </Card>
-  <Card
-    title="Customize your site"
-    icon="palette"
-    href="/essentials/settings"
-  >
-    Customize the design and colors of your site to match your brand.
+  <Card title="Flowbite UI Components" icon="palette" href="/features/ui-components">
+    Pre-built UI components from Flowbite for rapid interface development
   </Card>
-    <Card
-    title="Set up navigation"
-    icon="map"
-    href="/essentials/navigation"
-  >
-    Organize your docs to help users find what they need and succeed with your product.
+  <Card title="Tailwind CSS v4" icon="sparkles" href="/development/tailwind">
+    Modern utility-first CSS framework for custom styling
   </Card>
-  <Card
-    title="API documentation"
-    icon="terminal"
-    href="/api-reference/introduction"
-  >
-    Auto-generate API documentation from OpenAPI specifications.
+  <Card title="Laravel 12 Backend" icon="server" href="/development/structure">
+    Powerful PHP framework with elegant syntax and robust features
   </Card>
-</Columns>
+</CardGroup>
 
-## Create beautiful pages
+## Quick Start
 
-Everything you need to create world-class documentation.
+Get Solare Admin View running locally in minutes.
 
-<Columns cols={2}>
-  <Card
-    title="Write with MDX"
-    icon="pen-fancy"
-    href="/essentials/markdown"
-  >
-    Use MDX to style your docs pages.
+<CardGroup cols={2}>
+  <Card title="Installation" icon="download" href="/development/installation">
+    Set up your development environment and install dependencies
   </Card>
-  <Card
-    title="Code samples"
-    icon="code"
-    href="/essentials/code"
-  >
-    Add sample code to demonstrate how to use your product.
+  <Card title="Configuration" icon="gear" href="/development/configuration">
+    Configure your application settings and environment variables
   </Card>
-  <Card
-    title="Images"
-    icon="image"
-    href="/essentials/images"
-  >
-    Display images and other media.
+  <Card title="User Management" icon="users" href="/features/user-management">
+    Learn how to manage users and permissions
   </Card>
-  <Card
-    title="Reusable snippets"
-    icon="recycle"
-    href="/essentials/reusable-snippets"
-  >
-    Write once and reuse across your docs.
+  <Card title="Customization" icon="brush" href="/guides/customization">
+    Customize the interface to match your brand
   </Card>
-</Columns>
+</CardGroup>
 
-## Need inspiration?
+## For Developers
 
-<Card
-  title="See complete examples"
-  icon="stars"
-  href="https://mintlify.com/customers"
->
-  Browse our showcase of exceptional documentation sites.
-</Card>
+Build and extend Solare Admin View with comprehensive development resources.
+
+<CardGroup cols={3}>
+  <Card title="Project Structure" icon="folder-tree" href="/development/structure">
+    Understand the Laravel directory structure
+  </Card>
+  <Card title="Routing" icon="route" href="/development/routing">
+    Configure application routes
+  </Card>
+  <Card title="Blade Templates" icon="file-code" href="/development/blade-templates">
+    Work with Laravel's templating engine
+  </Card>
+  <Card title="Models" icon="database" href="/development/models">
+    Define Eloquent models and relationships
+  </Card>
+  <Card title="Testing" icon="flask" href="/development/testing">
+    Write and run tests with Pest PHP
+  </Card>
+  <Card title="Deployment" icon="rocket" href="/development/deployment">
+    Deploy your application to production
+  </Card>
+</CardGroup>

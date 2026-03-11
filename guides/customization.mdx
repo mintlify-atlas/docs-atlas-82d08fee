@@ -1,0 +1,618 @@
+---
+title: Customizing the Interface
+description: Learn how to customize the Solare Admin View interface using Tailwind CSS 4, Flowbite components, and Laravel Blade templates
+---
+
+## Overview
+
+Solare Admin View is built with modern, flexible technologies that make customization straightforward. This guide covers how to customize the interface's appearance, themes, and components.
+
+<Info>
+  This guide focuses on user-facing customization. For developer-level customization, see the [Development](/development) section.
+</Info>
+
+## Technology Stack
+
+Understanding the technology stack helps you customize effectively:
+
+- **Laravel 12**: PHP framework and templating
+- **Tailwind CSS 4**: Utility-first CSS framework
+- **Flowbite 4**: UI component library
+- **Vite**: Modern build tool and dev server
+- **Instrument Sans**: Custom web font
+
+## Tailwind CSS Configuration
+
+The interface uses Tailwind CSS 4 with a custom configuration.
+
+### Configuration File
+
+The main Tailwind configuration is in `tailwind.config.js`:
+
+```javascript
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: [
+    "./resources/**/*.blade.php",
+    "./resources/**/*.js",
+    "./node_modules/flowbite/**/*.js"
+  ],
+  theme: {
+    extend: {},
+  },
+  plugins: [
+    require('flowbite/plugin')
+  ],
+}
+```
+
+<Note>
+  The `content` array tells Tailwind where to look for class names. This includes Blade templates, JavaScript files, and Flowbite components.
+</Note>
+
+### CSS Configuration
+
+The `resources/css/app.css` file uses Tailwind CSS 4's new syntax:
+
+```css
+@import "tailwindcss";
+@import "flowbite/src/themes/default";
+
+/* Source paths for Tailwind to scan */
+@source "../../resources/views/**/*.blade.php";
+@source "../../resources/js/**/*.js";
+@source "../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php";
+
+/* Enable Flowbite plugin */
+@plugin "flowbite/plugin";
+
+/* Custom theme configuration */
+@theme {
+    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 
+                 'Apple Color Emoji', 'Segoe UI Emoji',
+                 'Segoe UI Symbol', 'Noto Color Emoji';
+}
+```
+
+<Warning>
+  Tailwind CSS 4 uses a different syntax than v3. The `@source` and `@plugin` directives replace the old `content` and `plugins` configuration.
+</Warning>
+
+## Customizing Colors
+
+### Brand Colors
+
+The interface uses semantic color tokens from Flowbite:
+
+#### Light Theme Colors
+
+```css
+/* Backgrounds */
+bg-[#FDFDFC]           /* Main page background */
+bg-white               /* Card backgrounds */
+bg-[#fff2f2]          /* Accent background (light red) */
+
+/* Text */
+text-[#1b1b18]        /* Primary text */
+text-[#706f6c]        /* Secondary text */
+text-[#f53003]        /* Laravel brand red (links) */
+
+/* Borders */
+border-[#e3e3e0]      /* Standard border */
+border-[#19140035]    /* Subtle border with opacity */
+```
+
+#### Dark Theme Colors
+
+```css
+/* Backgrounds */
+bg-[#0a0a0a]          /* Main page background */
+bg-[#161615]          /* Card backgrounds */
+bg-[#1D0002]          /* Accent background (dark red) */
+
+/* Text */
+text-[#EDEDEC]        /* Primary text */
+text-[#A1A09A]        /* Secondary text */
+text-[#FF4433]        /* Laravel brand red (links) */
+
+/* Borders */
+border-[#3E3E3A]      /* Standard border */
+```
+
+<Accordion title="How to Change Brand Colors">
+  To change the brand color scheme:
+  
+  1. Identify the color tokens you want to change
+  2. Use CSS custom properties in your theme configuration:
+  
+  ```css
+  @theme {
+    --color-brand-primary: #your-color;
+    --color-brand-secondary: #your-color;
+  }
+  ```
+  
+  3. Update references in your Blade templates to use the new color
+</Accordion>
+
+### Flowbite Semantic Colors
+
+Flowbite provides semantic color utilities that automatically adapt to light/dark mode:
+
+```html
+<!-- Info/Brand colors -->
+<div class="bg-brand-softer text-fg-brand-strong">Info content</div>
+
+<!-- Danger colors -->
+<div class="bg-danger-soft text-fg-danger-strong">Error content</div>
+
+<!-- Success colors -->
+<div class="bg-success-soft text-fg-success-strong">Success content</div>
+
+<!-- Warning colors -->
+<div class="bg-warning-soft text-fg-warning">Warning content</div>
+
+<!-- Neutral colors -->
+<div class="bg-neutral-secondary-medium text-heading">Neutral content</div>
+```
+
+<Tip>
+  Using semantic colors ensures your interface adapts properly to theme changes without hardcoding specific color values.
+</Tip>
+
+## Customizing Typography
+
+### Font Family
+
+The default font is **Instrument Sans**, loaded from Bunny Fonts (privacy-friendly alternative to Google Fonts):
+
+```html
+<link rel="preconnect" href="https://fonts.bunny.net">
+<link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" 
+      rel="stylesheet" />
+```
+
+To change the font:
+
+<Steps>
+  <Step title="Choose Your Font">
+    Select a font from Bunny Fonts, Google Fonts, or use a local font file.
+  </Step>
+  
+  <Step title="Update Font Link">
+    Replace the font link in your main layout file:
+    
+    ```html
+    <link href="https://fonts.bunny.net/css?family=your-font:400,500,600" 
+          rel="stylesheet" />
+    ```
+  </Step>
+  
+  <Step title="Update CSS Configuration">
+    Modify the `@theme` block in `resources/css/app.css`:
+    
+    ```css
+    @theme {
+        --font-sans: 'Your Font Name', ui-sans-serif, system-ui, sans-serif;
+    }
+    ```
+  </Step>
+  
+  <Step title="Rebuild Assets">
+    Run the build process to apply changes:
+    
+    ```bash
+    npm run build
+    ```
+  </Step>
+</Steps>
+
+### Font Sizes
+
+Tailwind provides utility classes for font sizes. Common sizes used in the interface:
+
+```html
+<!-- Small text (13px) -->
+<p class="text-[13px] leading-[20px]">Small body text</p>
+
+<!-- Standard text (14px) -->
+<p class="text-sm">Standard UI text</p>
+
+<!-- Medium text (16px) -->
+<p class="text-base">Base font size</p>
+
+<!-- Large text (18px+) -->
+<h3 class="text-lg font-medium">Section heading</h3>
+```
+
+<Note>
+  Custom pixel values like `text-[13px]` are used for precise control. Standard Tailwind sizes (`text-sm`, `text-base`) are preferred when they fit.
+</Note>
+
+## Customizing Components
+
+### Buttons
+
+Buttons follow consistent patterns that you can customize:
+
+#### Primary Button
+
+```html
+<button class="inline-block px-5 py-1.5 
+               bg-[#1b1b18] dark:bg-[#eeeeec] 
+               border-black dark:border-[#eeeeec] 
+               text-white dark:text-[#1C1C1A] 
+               hover:bg-black dark:hover:bg-white 
+               hover:border-black dark:hover:border-white 
+               rounded-sm border text-sm leading-normal">
+  Primary Action
+</button>
+```
+
+#### Secondary Button
+
+```html
+<button class="inline-block px-5 py-1.5 
+               text-[#1b1b18] dark:text-[#EDEDEC] 
+               border border-[#19140035] dark:border-[#3E3E3A] 
+               hover:border-[#1915014a] dark:hover:border-[#62605b] 
+               rounded-sm text-sm leading-normal">
+  Secondary Action
+</button>
+```
+
+<Accordion title="Button Customization Options">
+  You can customize:
+  
+  - **Size**: Change `px-5 py-1.5` to adjust padding
+  - **Colors**: Modify background and border colors
+  - **Borders**: Adjust `border` and `rounded-sm` for different styles
+  - **Typography**: Change `text-sm` and `font-medium` for text appearance
+  - **Hover states**: Customize `hover:` prefixed classes
+</Accordion>
+
+### Alert Components
+
+Customize alert appearance while maintaining semantic meaning:
+
+```html
+<!-- Customized info alert -->
+<div class="p-6 mb-6 text-base font-medium 
+            text-fg-brand-strong rounded-lg bg-brand-softer 
+            border-l-4 border-brand-strong" 
+     role="alert">
+  <span class="text-lg font-semibold">Custom Alert!</span>
+  <p class="mt-2">Enhanced alert with custom styling.</p>
+</div>
+```
+
+Customization options:
+- **Padding**: Increase from `p-4` to `p-6` for more space
+- **Border radius**: Change `rounded-base` to `rounded-lg` or `rounded-xl`
+- **Border accent**: Add `border-l-4` for left accent bar
+- **Font size**: Adjust from `text-sm` to `text-base` or larger
+
+### Cards and Containers
+
+The interface uses cards with shadow effects:
+
+```html
+<div class="bg-white dark:bg-[#161615] 
+            p-6 pb-12 lg:p-20 
+            shadow-[inset_0px_0px_0px_1px_rgba(26,26,0,0.16)] 
+            dark:shadow-[inset_0px_0px_0px_1px_#fffaed2d] 
+            rounded-lg">
+  <!-- Card content -->
+</div>
+```
+
+<Info>
+  The inset shadow creates a subtle border effect that looks more refined than standard borders.
+</Info>
+
+## Dark Mode Customization
+
+### Understanding Dark Mode
+
+Dark mode is triggered by the system preference and uses Tailwind's `dark:` variant:
+
+```html
+<div class="bg-white dark:bg-[#161615] 
+            text-[#1b1b18] dark:text-[#EDEDEC]">
+  Content that adapts to theme
+</div>
+```
+
+### Dark Mode Best Practices
+
+<AccordionGroup>
+  <Accordion title="Contrast Ratios">
+    Maintain sufficient contrast in both modes:
+    
+    - Light mode: Dark text on light backgrounds
+    - Dark mode: Light text on dark backgrounds
+    - Aim for WCAG AA compliance (4.5:1 ratio minimum)
+  </Accordion>
+  
+  <Accordion title="Color Intensity">
+    Adjust color intensity for dark mode:
+    
+    ```html
+    <!-- Light mode uses deeper red -->
+    <a class="text-[#f53003] dark:text-[#FF4433]">Link</a>
+    ```
+    
+    Dark mode colors are often lighter/brighter than light mode equivalents.
+  </Accordion>
+  
+  <Accordion title="Shadows and Borders">
+    Use different shadow strategies:
+    
+    ```html
+    <div class="shadow-md dark:shadow-[0_0_0_1px_rgba(255,255,255,0.1)]">
+    ```
+    
+    Shadows may need to be lighter or replaced with borders in dark mode.
+  </Accordion>
+</AccordionGroup>
+
+## Responsive Customization
+
+### Breakpoints
+
+Tailwind's default breakpoints are used throughout:
+
+```javascript
+// Default breakpoints
+sm: '640px'   // Small devices
+md: '768px'   // Medium devices
+lg: '1024px'  // Large devices (desktop)
+xl: '1280px'  // Extra large
+2xl: '1536px' // 2X large
+```
+
+The interface primarily uses the `lg:` breakpoint for desktop optimizations:
+
+```html
+<div class="p-6 lg:p-8         /* More padding on desktop */
+            max-w-[335px] lg:max-w-4xl    /* Wider on desktop */
+            flex-col lg:flex-row">         /* Horizontal on desktop */
+  Content
+</div>
+```
+
+<Tip>
+  Mobile-first approach: Base styles target mobile, then use `lg:` prefix for desktop enhancements.
+</Tip>
+
+## Flowbite Components
+
+### Available Components
+
+Flowbite 4 is included and provides ready-to-use components:
+
+- Alerts
+- Buttons
+- Cards
+- Dropdowns
+- Modals
+- Navbars
+- Forms
+- Tables
+- And more...
+
+### Using Flowbite Components
+
+Flowbite components are automatically available:
+
+```html
+<!-- Flowbite dropdown example -->
+<button data-dropdown-toggle="dropdown" 
+        class="text-white bg-blue-700 hover:bg-blue-800 
+               font-medium rounded-lg text-sm px-5 py-2.5 
+               text-center" 
+        type="button">
+  Dropdown button
+</button>
+
+<div id="dropdown" class="z-10 hidden bg-white divide-y divide-gray-100 
+                           rounded-lg shadow w-44">
+  <ul class="py-2 text-sm text-gray-700">
+    <li><a href="#" class="block px-4 py-2 hover:bg-gray-100">Item 1</a></li>
+    <li><a href="#" class="block px-4 py-2 hover:bg-gray-100">Item 2</a></li>
+  </ul>
+</div>
+```
+
+<Note>
+  Flowbite's JavaScript is automatically initialized via the plugin in `tailwind.config.js`.
+</Note>
+
+## Animation Customization
+
+### Transition Duration
+
+The interface uses 750ms transitions for a polished feel:
+
+```html
+<div class="transition-opacity opacity-100 duration-750 
+            starting:opacity-0">
+  Content fades in on load
+</div>
+```
+
+To adjust timing:
+
+```html
+<!-- Faster -->
+<div class="transition-all duration-300">Fast transition</div>
+
+<!-- Default -->
+<div class="transition-all duration-750">Standard transition</div>
+
+<!-- Slower -->
+<div class="transition-all duration-1000">Slow transition</div>
+```
+
+### Custom Animations
+
+Add custom animations in your theme configuration:
+
+```css
+@theme {
+  @keyframes slideIn {
+    from {
+      transform: translateX(-100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+}
+```
+
+Then use in your HTML:
+
+```html
+<div class="animate-[slideIn_0.5s_ease-out]">
+  Slides in from left
+</div>
+```
+
+## Build and Development
+
+### Development Mode
+
+Run the development server with hot reload:
+
+```bash
+npm run dev
+```
+
+This starts Vite in development mode, enabling:
+- Hot module replacement (HMR)
+- Fast refresh on file changes
+- Source maps for debugging
+
+### Production Build
+
+Build optimized assets for production:
+
+```bash
+npm run build
+```
+
+This:
+- Minifies CSS and JavaScript
+- Removes unused Tailwind classes
+- Optimizes images and assets
+- Generates production-ready files
+
+<Warning>
+  Always run a production build before deploying to ensure optimal performance.
+</Warning>
+
+## Advanced Customization
+
+### Extending Tailwind Theme
+
+Add custom utilities in `tailwind.config.js`:
+
+```javascript
+export default {
+  theme: {
+    extend: {
+      colors: {
+        'brand': {
+          50: '#fef2f2',
+          100: '#fee2e2',
+          // ... more shades
+          900: '#7f1d1d',
+        },
+      },
+      spacing: {
+        '128': '32rem',
+        '144': '36rem',
+      },
+      borderRadius: {
+        '4xl': '2rem',
+      },
+    },
+  },
+}
+```
+
+### Custom Flowbite Theme
+
+Customize Flowbite's default theme by importing and modifying:
+
+```css
+@import "flowbite/src/themes/default";
+
+/* Override Flowbite variables */
+@theme {
+  --flowbite-primary: #your-color;
+  --flowbite-secondary: #your-color;
+}
+```
+
+## Testing Your Changes
+
+<Steps>
+  <Step title="Make Changes">
+    Edit your CSS, Blade templates, or configuration files.
+  </Step>
+  
+  <Step title="Check Development Server">
+    Ensure `npm run dev` is running to see changes in real-time.
+  </Step>
+  
+  <Step title="Test Both Themes">
+    Toggle between light and dark mode to verify appearance in both.
+  </Step>
+  
+  <Step title="Test Responsive Behavior">
+    Use browser dev tools to test various screen sizes.
+  </Step>
+  
+  <Step title="Build for Production">
+    Run `npm run build` to ensure production build works correctly.
+  </Step>
+</Steps>
+
+## Common Customization Recipes
+
+<CardGroup cols={2}>
+  <Card title="Change Primary Color" icon="palette">
+    Update brand colors throughout the interface by modifying color values in Blade templates and CSS configuration.
+  </Card>
+  
+  <Card title="Adjust Spacing" icon="arrows-up-down">
+    Modify padding and margin values using Tailwind utilities like `p-4`, `m-6`, or custom spacing in theme config.
+  </Card>
+  
+  <Card title="Custom Fonts" icon="font">
+    Replace Instrument Sans with your brand font by updating the font link and CSS theme configuration.
+  </Card>
+  
+  <Card title="Border Styles" icon="border-all">
+    Customize border radius, width, and colors using Tailwind's border utilities and theme extensions.
+  </Card>
+</CardGroup>
+
+## Resources
+
+- [Tailwind CSS Documentation](https://tailwindcss.com/docs)
+- [Flowbite Components](https://flowbite.com/docs/getting-started/introduction/)
+- [Laravel Blade Templates](https://laravel.com/docs/blade)
+- [Vite Documentation](https://vitejs.dev/guide/)
+
+## Next Steps
+
+After customizing the interface:
+
+- Explore [UI Components](/features/ui-components) for more component options
+- Review [Development Guide](/development) for deeper technical customization
+- Check out [Deployment](/development/deployment) to publish your changes

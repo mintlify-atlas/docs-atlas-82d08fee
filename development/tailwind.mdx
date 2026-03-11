@@ -1,0 +1,234 @@
+---
+title: Tailwind CSS v4
+description: Learn how to use Tailwind CSS v4 with the new @source directive and custom theming in Solare Admin View
+---
+
+## Overview
+
+Solare Admin View uses **Tailwind CSS v4**, which introduces a modern configuration approach using CSS directives instead of JavaScript config files. This allows for a more streamlined development experience with better performance.
+
+## Installation
+
+Tailwind CSS v4 is already installed in the project. The key dependencies are:
+
+```json package.json
+{
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.2.1",
+    "tailwindcss": "^4.2.1"
+  },
+  "dependencies": {
+    "@tailwindcss/postcss": "^4.2.1"
+  }
+}
+```
+
+## Configuration
+
+### Vite Integration
+
+Tailwind CSS v4 is integrated into Vite using the `@tailwindcss/vite` plugin:
+
+```javascript vite.config.js
+import { defineConfig } from 'vite';
+import laravel from 'laravel-vite-plugin';
+import tailwindcss from '@tailwindcss/vite';
+
+export default defineConfig({
+    plugins: [
+        laravel({
+            input: ['resources/css/app.css', 'resources/js/app.js'],
+            refresh: true,
+        }),
+        tailwindcss(),
+    ],
+    server: {
+        watch: {
+            ignored: ['**/storage/framework/views/**'],
+        },
+    },
+});
+```
+
+### CSS Configuration
+
+The main Tailwind configuration is now in `resources/css/app.css` using CSS directives:
+
+```css resources/css/app.css
+@import "tailwindcss";
+@import "flowbite/src/themes/default";
+
+/* El punto (.) al inicio le dice a Tailwind que empiece desde la raíz del proyecto */
+@source "../../resources/views/**/*.blade.php";
+@source "../../resources/js/**/*.js";
+@source "../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php";
+
+@plugin "flowbite/plugin";
+
+@theme {
+    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol', 'Noto Color Emoji';
+}
+```
+
+<Note>
+The `@source` directive tells Tailwind which files to scan for utility classes. The `../../` prefix is used to start from the project root.
+</Note>
+
+## Key Features in Tailwind v4
+
+### 1. @source Directive
+
+Instead of the old `content` array in `tailwind.config.js`, Tailwind v4 uses the `@source` directive in CSS:
+
+```css
+@source "../../resources/views/**/*.blade.php";
+@source "../../resources/js/**/*.js";
+```
+
+This tells Tailwind to scan these files for utility classes to include in the final CSS.
+
+### 2. @theme Directive
+
+Customize your design tokens directly in CSS:
+
+```css
+@theme {
+    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
+}
+```
+
+### 3. @plugin Directive
+
+Load Tailwind plugins using the `@plugin` directive:
+
+```css
+@plugin "flowbite/plugin";
+```
+
+## Legacy Configuration
+
+The project still includes a legacy `tailwind.config.js` file for compatibility:
+
+```javascript tailwind.config.js
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: [
+    "./resources/**/*.blade.php",
+    "./resources/**/*.js",
+    "./node_modules/flowbite/**/*.js"
+  ],
+  theme: {
+    extend: {},
+  },
+  plugins: [
+    require('flowbite/plugin')
+  ],
+}
+```
+
+<Note>
+With Tailwind v4, this file is optional. The CSS-based configuration in `app.css` is the preferred approach.
+</Note>
+
+## Using Tailwind in Blade Templates
+
+### Basic Example
+
+Here's how Tailwind utilities are used in a typical Blade template:
+
+```blade resources/views/welcome.blade.php
+<body class="bg-[#FDFDFC] dark:bg-[#0a0a0a] text-[#1b1b18] flex p-6 lg:p-8 items-center lg:justify-center min-h-screen flex-col">
+    <header class="w-full lg:max-w-4xl max-w-[335px] text-sm mb-6">
+        <nav class="flex items-center justify-end gap-4">
+            <a href="{{ route('login') }}"
+               class="inline-block px-5 py-1.5 dark:text-[#EDEDEC] text-[#1b1b18] border border-transparent hover:border-[#19140035] dark:hover:border-[#3E3E3A] rounded-sm text-sm leading-normal">
+                Log in
+            </a>
+        </nav>
+    </header>
+</body>
+```
+
+### Responsive Design
+
+Tailwind's responsive modifiers work seamlessly:
+
+```blade
+<div class="max-w-[335px] w-full flex-col-reverse lg:max-w-4xl lg:flex-row">
+    <!-- Content -->
+</div>
+```
+
+### Dark Mode
+
+The project supports dark mode using the `dark:` prefix:
+
+```blade
+<div class="bg-white dark:bg-[#161615] dark:text-[#EDEDEC]">
+    <!-- Content -->
+</div>
+```
+
+## Custom Fonts
+
+The project uses Instrument Sans as the primary font, loaded from Bunny Fonts:
+
+```blade
+<link rel="preconnect" href="https://fonts.bunny.net">
+<link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
+```
+
+The font is configured in the theme:
+
+```css
+@theme {
+    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol', 'Noto Color Emoji';
+}
+```
+
+## Build Process
+
+To build your CSS:
+
+```bash
+# Development
+npm run dev
+
+# Production
+npm run build
+```
+
+Vite will automatically process the Tailwind CSS using the `@tailwindcss/vite` plugin.
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Use semantic color values">
+    Instead of hardcoding colors like `bg-red-500`, use semantic color tokens from your theme when possible.
+  </Accordion>
+
+  <Accordion title="Keep @source paths accurate">
+    Make sure your `@source` directives include all files where you use Tailwind utilities to avoid missing styles.
+  </Accordion>
+
+  <Accordion title="Leverage dark mode">
+    Use the `dark:` prefix for dark mode variants to ensure your UI looks great in both light and dark themes.
+  </Accordion>
+</AccordionGroup>
+
+## Migration from v3
+
+If you're migrating from Tailwind v3:
+
+1. Move `content` array from `tailwind.config.js` to `@source` directives in your CSS
+2. Move theme customizations to `@theme` blocks
+3. Convert `plugins` array to `@plugin` directives
+4. Update Vite config to use `@tailwindcss/vite` plugin
+
+## Resources
+
+- [Tailwind CSS v4 Documentation](https://tailwindcss.com/docs)
+- [Tailwind CSS GitHub](https://github.com/tailwindlabs/tailwindcss)
+- [Flowbite Integration](/development/flowbite)

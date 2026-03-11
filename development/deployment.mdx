@@ -1,0 +1,876 @@
+---
+title: Deployment Guide
+description: Deploy Solare Admin View to production with confidence using this comprehensive guide
+---
+
+## Overview
+
+This guide covers deploying Solare Admin View, a Laravel 12 application, to production environments. We'll cover server requirements, configuration, optimization, and best practices for a secure and performant deployment.
+
+## Server Requirements
+
+Before deploying, ensure your server meets these requirements:
+
+<CardGroup cols={2}>
+
+<Card title="PHP Requirements" icon="php">
+  - PHP 8.2 or higher
+  - Required extensions: mbstring, xml, bcmath, pdo, tokenizer, json, openssl, curl
+</Card>
+
+<Card title="Database" icon="database">
+  - MariaDB 10.3+
+  - MySQL 5.7+
+  - PostgreSQL 10+
+  - SQLite 3.35+
+</Card>
+
+<Card title="Web Server" icon="server">
+  - Nginx (recommended)
+  - Apache with mod_rewrite
+  - URL rewriting enabled
+</Card>
+
+<Card title="Additional" icon="tools">
+  - Composer 2.x
+  - Node.js 18+ and NPM
+  - Supervisor (for queue workers)
+</Card>
+
+</CardGroup>
+
+## Pre-Deployment Checklist
+
+Before deploying to production, complete these steps:
+
+<Steps>
+
+<Step title="Environment Configuration">
+
+Create a production `.env` file with appropriate settings:
+
+```bash
+APP_NAME="Solare Admin View"
+APP_ENV=production
+APP_DEBUG=false
+APP_URL=https://yourdomain.com
+
+DB_CONNECTION=mariadb
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=solare
+DB_USERNAME=your_db_user
+DB_PASSWORD=your_secure_password
+
+CACHE_STORE=redis
+SESSION_DRIVER=redis
+QUEUE_CONNECTION=redis
+
+REDIS_HOST=127.0.0.1
+REDIS_PASSWORD=null
+REDIS_PORT=6379
+
+MAIL_MAILER=smtp
+MAIL_HOST=smtp.mailtrap.io
+MAIL_PORT=2525
+MAIL_USERNAME=your_username
+MAIL_PASSWORD=your_password
+MAIL_FROM_ADDRESS="hello@yourdomain.com"
+MAIL_FROM_NAME="${APP_NAME}"
+```
+
+<Warning>
+Never commit your `.env` file to version control. Keep sensitive credentials secure.
+</Warning>
+
+</Step>
+
+<Step title="Generate Application Key">
+
+Generate a unique application key for encryption:
+
+```bash
+php artisan key:generate --force
+```
+
+</Step>
+
+<Step title="Run Tests">
+
+Ensure all tests pass before deploying:
+
+```bash
+composer test
+```
+
+</Step>
+
+<Step title="Build Frontend Assets">
+
+Compile and optimize frontend assets:
+
+```bash
+npm install
+npm run build
+```
+
+</Step>
+
+</Steps>
+
+## Deployment Methods
+
+### Manual Deployment
+
+<Steps>
+
+<Step title="Upload Code to Server">
+
+Use Git to deploy your code:
+
+```bash
+# On your server
+cd /var/www/solare
+git clone https://github.com/yourusername/solare-admin.git .
+
+# Or pull latest changes
+git pull origin main
+```
+
+</Step>
+
+<Step title="Install Dependencies">
+
+Install PHP and Node dependencies:
+
+```bash
+# Install PHP dependencies (production only)
+composer install --optimize-autoloader --no-dev
+
+# Install and build frontend assets
+npm ci
+npm run build
+```
+
+</Step>
+
+<Step title="Configure Environment">
+
+Set up your environment file:
+
+```bash
+cp .env.example .env
+php artisan key:generate
+
+# Edit .env with your production settings
+vim .env
+```
+
+</Step>
+
+<Step title="Run Migrations">
+
+Migrate your database:
+
+```bash
+php artisan migrate --force
+```
+
+<Note>
+The `--force` flag is required to run migrations in production.
+</Note>
+
+</Step>
+
+<Step title="Optimize Application">
+
+Optimize for production performance:
+
+```bash
+# Cache configuration
+php artisan config:cache
+
+# Cache routes
+php artisan route:cache
+
+# Cache views
+php artisan view:cache
+
+# Cache events
+php artisan event:cache
+```
+
+</Step>
+
+<Step title="Set Permissions">
+
+Set correct file permissions:
+
+```bash
+# Set ownership
+sudo chown -R www-data:www-data /var/www/solare
+
+# Set directory permissions
+sudo find /var/www/solare -type d -exec chmod 755 {} \;
+
+# Set file permissions
+sudo find /var/www/solare -type f -exec chmod 644 {} \;
+
+# Make storage and cache writable
+sudo chmod -R 775 /var/www/solare/storage
+sudo chmod -R 775 /var/www/solare/bootstrap/cache
+```
+
+</Step>
+
+</Steps>
+
+### Deployment with Laravel Forge
+
+Laravel Forge provides automated deployment:
+
+<Steps>
+
+<Step title="Connect Server to Forge">
+
+1. Create account at [forge.laravel.com](https://forge.laravel.com)
+2. Connect your server (DigitalOcean, AWS, Linode, etc.)
+3. Forge will provision and configure your server
+
+</Step>
+
+<Step title="Create Site">
+
+1. Click "New Site" in Forge
+2. Enter your domain name
+3. Select PHP 8.2
+4. Choose project type: Laravel
+
+</Step>
+
+<Step title="Configure Deployment Script">
+
+Forge provides a default deployment script:
+
+```bash
+cd /home/forge/yourdomain.com
+git pull origin main
+
+composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
+
+npm ci
+npm run build
+
+php artisan migrate --force
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+php artisan event:cache
+
+php artisan queue:restart
+```
+
+</Step>
+
+<Step title="Enable Quick Deploy">
+
+Enable automatic deployment on git push:
+
+1. Go to your site in Forge
+2. Click "Apps" tab
+3. Connect your Git repository
+4. Enable "Quick Deploy"
+
+</Step>
+
+</Steps>
+
+### Deployment with Laravel Envoyer
+
+Envoyer provides zero-downtime deployments:
+
+<Steps>
+
+<Step title="Create Project in Envoyer">
+
+1. Sign up at [envoyer.io](https://envoyer.io)
+2. Create new project
+3. Connect your Git repository
+
+</Step>
+
+<Step title="Configure Deployment Hook">
+
+Add deployment hooks in the order:
+
+1. Install Composer Dependencies
+2. Run npm install and build
+3. Run Migrations
+4. Clear and Cache Config
+5. Reload PHP-FPM
+6. Restart Queue Workers
+
+</Step>
+
+<Step title="Deploy">
+
+Click "Deploy" to start zero-downtime deployment.
+
+</Step>
+
+</Steps>
+
+## Web Server Configuration
+
+### Nginx Configuration
+
+Create a site configuration file:
+
+```nginx /etc/nginx/sites-available/solare
+server {
+    listen 80;
+    listen [::]:80;
+    server_name yourdomain.com;
+    root /var/www/solare/public;
+
+    add_header X-Frame-Options "SAMEORIGIN";
+    add_header X-Content-Type-Options "nosniff";
+
+    index index.php;
+
+    charset utf-8;
+
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    location = /favicon.ico { access_log off; log_not_found off; }
+    location = /robots.txt  { access_log off; log_not_found off; }
+
+    error_page 404 /index.php;
+
+    location ~ \.php$ {
+        fastcgi_pass unix:/var/run/php/php8.2-fpm.sock;
+        fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
+        include fastcgi_params;
+    }
+
+    location ~ /\.(?!well-known).* {
+        deny all;
+    }
+}
+```
+
+Enable the site:
+
+```bash
+sudo ln -s /etc/nginx/sites-available/solare /etc/nginx/sites-enabled/
+sudo nginx -t
+sudo systemctl reload nginx
+```
+
+### Apache Configuration
+
+Create a virtual host:
+
+```apache /etc/apache2/sites-available/solare.conf
+<VirtualHost *:80>
+    ServerName yourdomain.com
+    ServerAdmin admin@yourdomain.com
+    DocumentRoot /var/www/solare/public
+
+    <Directory /var/www/solare/public>
+        Options -Indexes +FollowSymLinks
+        AllowOverride All
+        Require all granted
+    </Directory>
+
+    ErrorLog ${APACHE_LOG_DIR}/solare-error.log
+    CustomLog ${APACHE_LOG_DIR}/solare-access.log combined
+</VirtualHost>
+```
+
+Enable required modules and site:
+
+```bash
+sudo a2enmod rewrite
+sudo a2ensite solare
+sudo systemctl reload apache2
+```
+
+## SSL/TLS Configuration
+
+Secure your application with HTTPS using Let's Encrypt:
+
+<Steps>
+
+<Step title="Install Certbot">
+
+```bash
+sudo apt update
+sudo apt install certbot python3-certbot-nginx
+```
+
+</Step>
+
+<Step title="Obtain Certificate">
+
+```bash
+sudo certbot --nginx -d yourdomain.com -d www.yourdomain.com
+```
+
+</Step>
+
+<Step title="Auto-Renewal">
+
+Certbot automatically sets up renewal. Test it:
+
+```bash
+sudo certbot renew --dry-run
+```
+
+</Step>
+
+<Step title="Update Environment">
+
+Update your `.env` file:
+
+```bash
+APP_URL=https://yourdomain.com
+```
+
+</Step>
+
+</Steps>
+
+## Queue Worker Configuration
+
+Set up Supervisor to keep queue workers running:
+
+<Steps>
+
+<Step title="Install Supervisor">
+
+```bash
+sudo apt install supervisor
+```
+
+</Step>
+
+<Step title="Create Worker Configuration">
+
+Create `/etc/supervisor/conf.d/solare-worker.conf`:
+
+```ini
+[program:solare-worker]
+process_name=%(program_name)s_%(process_num)02d
+command=php /var/www/solare/artisan queue:work redis --sleep=3 --tries=3 --max-time=3600
+autostart=true
+autorestart=true
+stopasgroup=true
+killasgroup=true
+user=www-data
+numprocs=2
+redirect_stderr=true
+stdout_logfile=/var/www/solare/storage/logs/worker.log
+stopwaitsecs=3600
+```
+
+</Step>
+
+<Step title="Start Supervisor">
+
+```bash
+sudo supervisorctl reread
+sudo supervisorctl update
+sudo supervisorctl start solare-worker:*
+```
+
+</Step>
+
+<Step title="Check Status">
+
+```bash
+sudo supervisorctl status
+```
+
+</Step>
+
+</Steps>
+
+## Scheduled Tasks (Cron)
+
+Laravel's scheduler requires a single cron entry:
+
+```bash
+crontab -e
+```
+
+Add this line:
+
+```cron
+* * * * * cd /var/www/solare && php artisan schedule:run >> /dev/null 2>&1
+```
+
+## Performance Optimization
+
+### OPcache Configuration
+
+Optimize PHP with OPcache. Edit `/etc/php/8.2/fpm/php.ini`:
+
+```ini
+opcache.enable=1
+opcache.memory_consumption=256
+opcache.interned_strings_buffer=16
+opcache.max_accelerated_files=20000
+opcache.validate_timestamps=0
+opcache.save_comments=1
+opcache.fast_shutdown=1
+```
+
+Restart PHP-FPM:
+
+```bash
+sudo systemctl restart php8.2-fpm
+```
+
+### Redis Configuration
+
+Use Redis for caching, sessions, and queues:
+
+```bash .env
+CACHE_STORE=redis
+SESSION_DRIVER=redis
+QUEUE_CONNECTION=redis
+
+REDIS_HOST=127.0.0.1
+REDIS_PASSWORD=null
+REDIS_PORT=6379
+REDIS_CLIENT=phpredis
+```
+
+### Database Optimization
+
+Optimize your database queries:
+
+```bash
+# Enable query logging to find slow queries
+LOG_QUERY=true
+LOG_QUERY_SLOW=true
+
+# Add indexes to frequently queried columns
+php artisan make:migration add_indexes_to_tables
+```
+
+## Monitoring and Logging
+
+### Error Tracking
+
+Integrate error tracking services:
+
+<CodeGroup>
+
+```bash Sentry
+composer require sentry/sentry-laravel
+php artisan sentry:publish --dsn=your-dsn-here
+```
+
+```bash Bugsnag
+composer require bugsnag/bugsnag-laravel
+php artisan vendor:publish --provider="Bugsnag\BugsnagLaravel\BugsnagServiceProvider"
+```
+
+</CodeGroup>
+
+### Log Management
+
+Configure logging in `.env`:
+
+```bash
+LOG_CHANNEL=stack
+LOG_STACK=single,daily
+LOG_LEVEL=error
+```
+
+Rotate logs to prevent disk space issues:
+
+```bash
+# Configure daily log rotation
+LOG_DAILY_DAYS=14
+```
+
+## Backup Strategy
+
+<Steps>
+
+<Step title="Database Backups">
+
+Create automated database backups:
+
+```bash
+#!/bin/bash
+# /usr/local/bin/backup-db.sh
+
+DATABASE="solare"
+USER="your_db_user"
+PASSWORD="your_db_password"
+BACKUP_DIR="/backups/database"
+DATE=$(date +%Y%m%d_%H%M%S)
+
+mkdir -p $BACKUP_DIR
+mysqldump -u $USER -p$PASSWORD $DATABASE | gzip > $BACKUP_DIR/backup_$DATE.sql.gz
+
+# Keep only last 30 days of backups
+find $BACKUP_DIR -type f -mtime +30 -delete
+```
+
+Make it executable and add to cron:
+
+```bash
+chmod +x /usr/local/bin/backup-db.sh
+crontab -e
+# Add: 0 2 * * * /usr/local/bin/backup-db.sh
+```
+
+</Step>
+
+<Step title="File Backups">
+
+Backup uploaded files and storage:
+
+```bash
+#!/bin/bash
+# Backup storage directory
+tar -czf /backups/storage_$(date +%Y%m%d).tar.gz /var/www/solare/storage
+```
+
+</Step>
+
+<Step title="Automated Backups with Laravel">
+
+Use packages like `spatie/laravel-backup`:
+
+```bash
+composer require spatie/laravel-backup
+php artisan vendor:publish --provider="Spatie\Backup\BackupServiceProvider"
+php artisan backup:run
+```
+
+</Step>
+
+</Steps>
+
+## Deployment Rollback
+
+If something goes wrong, rollback quickly:
+
+### With Envoyer
+
+Click "Rollback" in the Envoyer dashboard to restore the previous release.
+
+### Manual Rollback
+
+```bash
+# Revert to previous git commit
+git log --oneline -n 10
+git reset --hard <previous-commit-hash>
+
+# Reinstall dependencies
+composer install --optimize-autoloader --no-dev
+
+# Rollback migrations if needed
+php artisan migrate:rollback --step=1
+
+# Clear caches
+php artisan cache:clear
+php artisan config:clear
+php artisan route:clear
+php artisan view:clear
+
+# Recache
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+```
+
+## Security Best Practices
+
+<AccordionGroup>
+
+<Accordion title="Environment Security">
+
+- Never commit `.env` files
+- Use strong, unique passwords
+- Disable debug mode in production (`APP_DEBUG=false`)
+- Keep dependencies updated: `composer update`
+
+</Accordion>
+
+<Accordion title="File Permissions">
+
+```bash
+# Proper ownership
+chown -R www-data:www-data /var/www/solare
+
+# Secure permissions
+chmod -R 755 /var/www/solare
+chmod -R 775 storage bootstrap/cache
+```
+
+</Accordion>
+
+<Accordion title="Firewall Configuration">
+
+```bash
+# Enable UFW firewall
+sudo ufw allow 22/tcp
+sudo ufw allow 80/tcp
+sudo ufw allow 443/tcp
+sudo ufw enable
+```
+
+</Accordion>
+
+<Accordion title="Rate Limiting">
+
+Configure rate limiting in routes:
+
+```php routes/web.php
+Route::middleware(['throttle:60,1'])->group(function () {
+    // Your routes here
+});
+```
+
+</Accordion>
+
+</AccordionGroup>
+
+## Troubleshooting
+
+<AccordionGroup>
+
+<Accordion title="500 Internal Server Error">
+
+Check logs and permissions:
+
+```bash
+# Check Laravel logs
+tail -f storage/logs/laravel.log
+
+# Check web server logs
+tail -f /var/log/nginx/error.log
+
+# Verify permissions
+sudo chmod -R 775 storage bootstrap/cache
+```
+
+</Accordion>
+
+<Accordion title="Database Connection Issues">
+
+Verify database credentials:
+
+```bash
+# Test database connection
+php artisan tinker
+> DB::connection()->getPdo();
+
+# Check .env database settings
+cat .env | grep DB_
+```
+
+</Accordion>
+
+<Accordion title="Queue Workers Not Processing">
+
+Restart queue workers:
+
+```bash
+# Restart all workers
+sudo supervisorctl restart solare-worker:*
+
+# Or use artisan
+php artisan queue:restart
+```
+
+</Accordion>
+
+<Accordion title="Assets Not Loading">
+
+Rebuild and clear caches:
+
+```bash
+npm run build
+php artisan view:clear
+php artisan cache:clear
+```
+
+</Accordion>
+
+</AccordionGroup>
+
+## Post-Deployment Verification
+
+After deployment, verify everything works:
+
+<Steps>
+
+<Step title="Check Application Health">
+
+```bash
+curl https://yourdomain.com/health
+```
+
+</Step>
+
+<Step title="Test Critical Features">
+
+- User authentication
+- Database operations
+- File uploads
+- Email notifications
+- Queue processing
+
+</Step>
+
+<Step title="Monitor Logs">
+
+```bash
+tail -f storage/logs/laravel.log
+```
+
+</Step>
+
+<Step title="Performance Testing">
+
+Use tools like Apache Bench:
+
+```bash
+ab -n 1000 -c 10 https://yourdomain.com/
+```
+
+</Step>
+
+</Steps>
+
+## Related Resources
+
+<CardGroup cols={2}>
+
+<Card title="Laravel Deployment" icon="laravel" href="https://laravel.com/docs/deployment">
+  Official Laravel deployment documentation
+</Card>
+
+<Card title="Laravel Forge" icon="server" href="https://forge.laravel.com">
+  Automated server management and deployment
+</Card>
+
+<Card title="Laravel Envoyer" icon="rocket" href="https://envoyer.io">
+  Zero-downtime PHP deployment
+</Card>
+
+<Card title="DigitalOcean Laravel" icon="cloud" href="https://www.digitalocean.com/community/tutorials/how-to-deploy-laravel-applications">
+  Deploy Laravel on DigitalOcean
+</Card>
+
+</CardGroup>

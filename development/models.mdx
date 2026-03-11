@@ -1,0 +1,467 @@
+---
+title: 'Eloquent Models'
+description: 'Working with Eloquent ORM models in Solare Admin View'
+---
+
+## Overview
+
+Solare Admin View uses Laravel's Eloquent ORM for database interactions. Models represent database tables and provide an elegant, ActiveRecord implementation for working with your database.
+
+## Model Location
+
+All Eloquent models are stored in the `app/Models/` directory and use the `App\Models` namespace.
+
+## User Model
+
+The `User` model is the core authentication model in the application:
+
+```php app/Models/User.php
+<?php
+
+namespace App\Models;
+
+// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+
+class User extends Authenticatable
+{
+    /** @use HasFactory<\Database\Factories\UserFactory> */
+    use HasFactory, Notifiable;
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var list<string>
+     */
+    protected $fillable = [
+        'name',
+        'email',
+        'password',
+    ];
+
+    /**
+     * The attributes that should be hidden for serialization.
+     *
+     * @var list<string>
+     */
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'email_verified_at' => 'datetime',
+            'password' => 'hashed',
+        ];
+    }
+}
+```
+
+### Key Features
+
+<AccordionGroup>
+  <Accordion title="Mass Assignment Protection">
+    The `$fillable` property defines which attributes can be mass-assigned:
+    
+    ```php
+    protected $fillable = [
+        'name',
+        'email',
+        'password',
+    ];
+    ```
+    
+    This protects against mass-assignment vulnerabilities by explicitly whitelisting safe attributes.
+  </Accordion>
+  
+  <Accordion title="Hidden Attributes">
+    The `$hidden` property prevents sensitive data from appearing in JSON responses:
+    
+    ```php
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
+    ```
+    
+    When the model is converted to an array or JSON, these attributes are excluded.
+  </Accordion>
+  
+  <Accordion title="Attribute Casting">
+    The `casts()` method automatically converts attributes to specific data types:
+    
+    ```php
+    protected function casts(): array
+    {
+        return [
+            'email_verified_at' => 'datetime',
+            'password' => 'hashed',
+        ];
+    }
+    ```
+    
+    - `datetime` - Converts to Carbon instance
+    - `hashed` - Automatically hashes passwords on save
+  </Accordion>
+</AccordionGroup>
+
+### Traits
+
+The User model uses several important traits:
+
+<Tabs>
+  <Tab title="HasFactory">
+    ```php
+    use HasFactory;
+    ```
+    
+    Enables model factories for testing and seeding:
+    
+    ```php
+    $user = User::factory()->create();
+    ```
+  </Tab>
+  <Tab title="Notifiable">
+    ```php
+    use Notifiable;
+    ```
+    
+    Allows the model to send notifications:
+    
+    ```php
+    $user->notify(new InvoicePaid($invoice));
+    ```
+  </Tab>
+</Tabs>
+
+## Creating Models
+
+Create new models using Artisan:
+
+```bash
+php artisan make:model Post
+```
+
+### With Additional Files
+
+```bash
+# Model + Migration
+php artisan make:model Post -m
+
+# Model + Migration + Factory + Seeder
+php artisan make:model Post -mfs
+
+# Model + Controller + Migration
+php artisan make:model Post -mc
+```
+
+<Tip>
+Use the `-a` flag to generate all associated files:
+
+```bash
+php artisan make:model Post -a
+```
+
+This creates the model, migration, factory, seeder, policy, and controller.
+</Tip>
+
+## Basic Model Operations
+
+### Creating Records
+
+```php
+use App\Models\User;
+
+// Create and save
+$user = new User();
+$user->name = 'John Doe';
+$user->email = 'john@example.com';
+$user->password = bcrypt('password');
+$user->save();
+
+// Mass assignment
+$user = User::create([
+    'name' => 'John Doe',
+    'email' => 'john@example.com',
+    'password' => bcrypt('password'),
+]);
+```
+
+### Retrieving Records
+
+```php
+// Get all records
+$users = User::all();
+
+// Find by primary key
+$user = User::find(1);
+
+// Find or fail (throws 404)
+$user = User::findOrFail(1);
+
+// Query conditions
+$users = User::where('active', 1)->get();
+$user = User::where('email', 'john@example.com')->first();
+```
+
+### Updating Records
+
+```php
+// Find and update
+$user = User::find(1);
+$user->name = 'Jane Doe';
+$user->save();
+
+// Mass update
+User::where('active', 0)->update(['status' => 'inactive']);
+```
+
+### Deleting Records
+
+```php
+// Delete instance
+$user = User::find(1);
+$user->delete();
+
+// Delete by primary key
+User::destroy(1);
+User::destroy([1, 2, 3]);
+
+// Delete with query
+User::where('active', 0)->delete();
+```
+
+## Query Scopes
+
+Define reusable query logic:
+
+```php
+class User extends Authenticatable
+{
+    // Global scope
+    protected static function booted()
+    {
+        static::addGlobalScope('active', function ($query) {
+            $query->where('active', 1);
+        });
+    }
+    
+    // Local scope
+    public function scopeActive($query)
+    {
+        return $query->where('active', 1);
+    }
+    
+    public function scopeVerified($query)
+    {
+        return $query->whereNotNull('email_verified_at');
+    }
+}
+
+// Usage
+$activeUsers = User::active()->get();
+$verifiedUsers = User::active()->verified()->get();
+```
+
+## Relationships
+
+Define relationships between models:
+
+<Tabs>
+  <Tab title="One to Many">
+    ```php
+    class User extends Authenticatable
+    {
+        public function posts()
+        {
+            return $this->hasMany(Post::class);
+        }
+    }
+    
+    class Post extends Model
+    {
+        public function user()
+        {
+            return $this->belongsTo(User::class);
+        }
+    }
+    
+    // Usage
+    $posts = $user->posts;
+    $author = $post->user;
+    ```
+  </Tab>
+  <Tab title="Many to Many">
+    ```php
+    class User extends Authenticatable
+    {
+        public function roles()
+        {
+            return $this->belongsToMany(Role::class);
+        }
+    }
+    
+    class Role extends Model
+    {
+        public function users()
+        {
+            return $this->belongsToMany(User::class);
+        }
+    }
+    
+    // Usage
+    $roles = $user->roles;
+    $users = $role->users;
+    ```
+  </Tab>
+  <Tab title="One to One">
+    ```php
+    class User extends Authenticatable
+    {
+        public function profile()
+        {
+            return $this->hasOne(Profile::class);
+        }
+    }
+    
+    class Profile extends Model
+    {
+        public function user()
+        {
+            return $this->belongsTo(User::class);
+        }
+    }
+    
+    // Usage
+    $profile = $user->profile;
+    $user = $profile->user;
+    ```
+  </Tab>
+</Tabs>
+
+## Accessors & Mutators
+
+Transform attribute values when getting or setting:
+
+```php
+class User extends Authenticatable
+{
+    // Accessor
+    protected function name(): Attribute
+    {
+        return Attribute::make(
+            get: fn (string $value) => ucfirst($value),
+        );
+    }
+    
+    // Mutator
+    protected function password(): Attribute
+    {
+        return Attribute::make(
+            set: fn (string $value) => bcrypt($value),
+        );
+    }
+}
+
+// Usage
+$user->name; // Automatically capitalized
+$user->password = 'secret'; // Automatically hashed
+```
+
+## Events
+
+Hook into model lifecycle events:
+
+```php
+class User extends Authenticatable
+{
+    protected static function booted()
+    {
+        static::creating(function ($user) {
+            // Before creating
+        });
+        
+        static::created(function ($user) {
+            // After created
+        });
+        
+        static::updating(function ($user) {
+            // Before updating
+        });
+        
+        static::updated(function ($user) {
+            // After updated
+        });
+        
+        static::deleting(function ($user) {
+            // Before deleting
+        });
+        
+        static::deleted(function ($user) {
+            // After deleted
+        });
+    }
+}
+```
+
+## Best Practices
+
+<Note>
+**Always use mass assignment protection** - Define `$fillable` or `$guarded` to prevent security vulnerabilities.
+</Note>
+
+<Note>
+**Hide sensitive attributes** - Use `$hidden` to exclude passwords, tokens, and other sensitive data from JSON responses.
+</Note>
+
+<Note>
+**Use attribute casting** - Define casts for dates, booleans, and other data types to ensure consistent formatting.
+</Note>
+
+<Note>
+**Leverage query scopes** - Create reusable query logic with local scopes for cleaner, more maintainable code.
+</Note>
+
+<Warning>
+Never store plain text passwords. Always use the `hashed` cast or `bcrypt()`/`Hash::make()` to hash passwords.
+</Warning>
+
+## Testing Models
+
+Use factories to generate test data:
+
+```php
+use App\Models\User;
+
+// Create one user
+$user = User::factory()->create();
+
+// Create multiple users
+$users = User::factory()->count(10)->create();
+
+// Create with custom attributes
+$user = User::factory()->create([
+    'name' => 'Test User',
+    'email' => 'test@example.com',
+]);
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Project Structure" icon="folder-tree" href="/development/structure">
+    Learn about the project organization
+  </Card>
+  <Card title="Routing" icon="route" href="/development/routing">
+    Understand the routing system
+  </Card>
+</CardGroup>

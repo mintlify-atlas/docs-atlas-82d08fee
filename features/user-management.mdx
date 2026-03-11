@@ -1,0 +1,300 @@
+---
+title: User Management
+description: Comprehensive guide to managing users in Solare Admin View using Laravel's Eloquent ORM
+---
+
+## Overview
+
+User management in Solare Admin View is powered by Laravel's Eloquent ORM, providing a clean and expressive interface for database operations. The User model serves as the foundation for all user-related functionality.
+
+## User Model
+
+The User model is located at `app/Models/User.php:10` and extends Laravel's `Authenticatable` base class:
+
+```php
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+
+class User extends Authenticatable
+{
+    use HasFactory, Notifiable;
+
+    protected $fillable = [
+        'name',
+        'email',
+        'password',
+    ];
+
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
+
+    protected function casts(): array
+    {
+        return [
+            'email_verified_at' => 'datetime',
+            'password' => 'hashed',
+        ];
+    }
+}
+```
+
+## Model Traits
+
+The User model uses two essential traits:
+
+<Accordion title="HasFactory">
+  Enables model factories for testing and seeding. This trait provides access to the `factory()` method, allowing you to generate fake user data for development and testing purposes.
+  
+  ```php
+  // Create a single user
+  $user = User::factory()->create();
+  
+  // Create multiple users
+  $users = User::factory()->count(50)->create();
+  ```
+</Accordion>
+
+<Accordion title="Notifiable">
+  Adds notification functionality to the model. This trait allows users to receive notifications through various channels like email, SMS, Slack, etc.
+  
+  ```php
+  $user->notify(new WelcomeNotification());
+  ```
+</Accordion>
+
+## User Attributes
+
+The User model includes several important attributes:
+
+### Database Schema
+
+The users table contains the following columns (defined in `database/migrations/0001_01_01_000000_create_users_table.php:14`):
+
+```php
+Schema::create('users', function (Blueprint $table) {
+    $table->id();
+    $table->string('name');
+    $table->string('email')->unique();
+    $table->timestamp('email_verified_at')->nullable();
+    $table->string('password');
+    $table->rememberToken();
+    $table->timestamps();
+});
+```
+
+<Steps>
+  <Step title="Primary Key">
+    The `id` column serves as the primary key, auto-incrementing for each new user.
+  </Step>
+  
+  <Step title="User Identity">
+    `name` and `email` columns store the user's identity. The email is unique to prevent duplicate accounts.
+  </Step>
+  
+  <Step title="Email Verification">
+    The `email_verified_at` timestamp tracks when the user verified their email address.
+  </Step>
+  
+  <Step title="Authentication">
+    `password` stores the hashed password, and `remember_token` enables "remember me" functionality.
+  </Step>
+  
+  <Step title="Timestamps">
+    `created_at` and `updated_at` automatically track when records are created and modified.
+  </Step>
+</Steps>
+
+## Mass Assignment
+
+The `$fillable` property at `app/Models/User.php:20` defines which attributes can be mass-assigned:
+
+```php
+protected $fillable = [
+    'name',
+    'email',
+    'password',
+];
+```
+
+<Note>
+Mass assignment protection prevents malicious users from modifying unintended fields. Only attributes listed in `$fillable` can be set using methods like `create()` or `update()`.
+</Note>
+
+### Creating Users
+
+```php
+// Mass assignment with fillable attributes
+$user = User::create([
+    'name' => 'John Doe',
+    'email' => 'john@example.com',
+    'password' => bcrypt('secure-password'),
+]);
+```
+
+## Hidden Attributes
+
+Sensitive attributes are hidden from JSON serialization at `app/Models/User.php:31`:
+
+```php
+protected $hidden = [
+    'password',
+    'remember_token',
+];
+```
+
+<Warning>
+Never expose passwords or remember tokens in API responses or JSON output. The `$hidden` property ensures these sensitive fields are automatically excluded.
+</Warning>
+
+## Attribute Casting
+
+The model defines attribute casts at `app/Models/User.php:41` to automatically convert values:
+
+```php
+protected function casts(): array
+{
+    return [
+        'email_verified_at' => 'datetime',
+        'password' => 'hashed',
+    ];
+}
+```
+
+<CardGroup cols={2}>
+  <Card title="Datetime Cast" icon="calendar">
+    The `email_verified_at` field is automatically cast to a Carbon datetime instance, providing convenient date manipulation methods.
+  </Card>
+  
+  <Card title="Hashed Cast" icon="lock">
+    The `password` field is automatically hashed when set, ensuring passwords are never stored in plain text.
+  </Card>
+</CardGroup>
+
+## CRUD Operations
+
+Perform common user management operations using Eloquent:
+
+### Create
+
+```php
+$user = User::create([
+    'name' => 'Jane Smith',
+    'email' => 'jane@example.com',
+    'password' => 'secret123', // Automatically hashed
+]);
+```
+
+### Read
+
+```php
+// Find by ID
+$user = User::find(1);
+
+// Find by email
+$user = User::where('email', 'jane@example.com')->first();
+
+// Get all users
+$users = User::all();
+
+// Paginate users
+$users = User::paginate(15);
+```
+
+### Update
+
+```php
+$user = User::find(1);
+$user->update([
+    'name' => 'Jane Doe',
+]);
+
+// Or update directly
+User::where('id', 1)->update(['name' => 'Jane Doe']);
+```
+
+### Delete
+
+```php
+$user = User::find(1);
+$user->delete();
+
+// Or delete directly
+User::destroy(1);
+
+// Delete multiple users
+User::destroy([1, 2, 3]);
+```
+
+## Query Scopes
+
+You can add query scopes to filter users:
+
+```php
+// In User model
+public function scopeVerified($query)
+{
+    return $query->whereNotNull('email_verified_at');
+}
+
+public function scopeRecent($query)
+{
+    return $query->where('created_at', '>=', now()->subDays(30));
+}
+
+// Usage
+$verifiedUsers = User::verified()->get();
+$recentUsers = User::recent()->get();
+```
+
+## Relationships
+
+Define relationships to connect users with other models:
+
+```php
+// One-to-many: User has many posts
+public function posts()
+{
+    return $this->hasMany(Post::class);
+}
+
+// Many-to-many: User belongs to many roles
+public function roles()
+{
+    return $this->belongsToMany(Role::class);
+}
+```
+
+## Best Practices
+
+<Steps>
+  <Step title="Always Hash Passwords">
+    Use the `hashed` cast or `bcrypt()` helper to ensure passwords are securely stored.
+  </Step>
+  
+  <Step title="Validate Input">
+    Always validate user input before creating or updating records to prevent invalid data.
+  </Step>
+  
+  <Step title="Use Mass Assignment Protection">
+    Keep the `$fillable` array updated and never disable mass assignment protection.
+  </Step>
+  
+  <Step title="Hide Sensitive Data">
+    Use the `$hidden` property to prevent sensitive attributes from appearing in JSON responses.
+  </Step>
+</Steps>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Authentication" icon="lock" href="/features/authentication">
+    Learn about the authentication system
+  </Card>
+  
+  <Card title="UI Components" icon="palette" href="/features/ui-components">
+    Explore Flowbite UI components
+  </Card>
+</CardGroup>

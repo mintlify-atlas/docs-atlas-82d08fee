@@ -1,0 +1,461 @@
+---
+title: Configuration
+description: Comprehensive guide to configuring Solare Admin View including application settings, database, cache, and services
+---
+
+## Configuration Files
+
+Solare Admin View uses Laravel's configuration system. All configuration files are located in the `config/` directory:
+
+```bash
+config/
+├── app.php          # Application core settings
+├── auth.php         # Authentication configuration
+├── cache.php        # Cache store configuration
+├── database.php     # Database connections
+├── filesystems.php  # File storage configuration
+├── logging.php      # Logging channels
+├── mail.php         # Email configuration
+├── queue.php        # Queue connections
+├── services.php     # Third-party services
+└── session.php      # Session configuration
+```
+
+<Note>
+Configuration values are typically set using environment variables in the `.env` file. Never commit the `.env` file to version control.
+</Note>
+
+## Application Configuration
+
+### Basic Settings
+
+The `config/app.php` file contains core application settings:
+
+<CodeGroup>
+```php config/app.php
+'name' => env('APP_NAME', 'Laravel'),
+'env' => env('APP_ENV', 'production'),
+'debug' => (bool) env('APP_DEBUG', false),
+'url' => env('APP_URL', 'http://localhost'),
+'timezone' => 'UTC',
+'locale' => env('APP_LOCALE', 'en'),
+'fallback_locale' => env('APP_FALLBACK_LOCALE', 'en'),
+```
+
+```env .env
+APP_NAME="Solare Admin"
+APP_ENV=local
+APP_DEBUG=true
+APP_URL=http://localhost
+APP_LOCALE=en
+APP_FALLBACK_LOCALE=en
+```
+</CodeGroup>
+
+### Application Key
+
+The `APP_KEY` is used for encryption and must be set before using the application:
+
+```bash
+php artisan key:generate
+```
+
+<Warning>
+**Never share your APP_KEY publicly.** If compromised, generate a new key immediately. Note that changing the key will invalidate all encrypted data.
+</Warning>
+
+### Encryption
+
+Solare Admin View uses AES-256-CBC encryption:
+
+```php config/app.php
+'cipher' => 'AES-256-CBC',
+'key' => env('APP_KEY'),
+```
+
+## Database Configuration
+
+### Supported Databases
+
+Solare Admin View supports multiple database systems:
+
+<Tabs>
+  <Tab title="MariaDB (Default)">
+    ```env .env
+    DB_CONNECTION=mariadb
+    DB_HOST=127.0.0.1
+    DB_PORT=3306
+    DB_DATABASE=solare
+    DB_USERNAME=root
+    DB_PASSWORD=
+    ```
+
+    <Info>
+    MariaDB is the default database for Solare Admin View, offering excellent performance and compatibility.
+    </Info>
+  </Tab>
+
+  <Tab title="MySQL">
+    ```env .env
+    DB_CONNECTION=mysql
+    DB_HOST=127.0.0.1
+    DB_PORT=3306
+    DB_DATABASE=solare
+    DB_USERNAME=root
+    DB_PASSWORD=
+    ```
+  </Tab>
+
+  <Tab title="PostgreSQL">
+    ```env .env
+    DB_CONNECTION=pgsql
+    DB_HOST=127.0.0.1
+    DB_PORT=5432
+    DB_DATABASE=solare
+    DB_USERNAME=postgres
+    DB_PASSWORD=
+    ```
+  </Tab>
+
+  <Tab title="SQLite">
+    ```env .env
+    DB_CONNECTION=sqlite
+    DB_DATABASE=/absolute/path/to/database.sqlite
+    ```
+
+    Create the database file:
+    ```bash
+    touch database/database.sqlite
+    php artisan migrate
+    ```
+  </Tab>
+</Tabs>
+
+### Advanced Database Options
+
+<CodeGroup>
+```php config/database.php (MariaDB/MySQL)
+'mariadb' => [
+    'driver' => 'mariadb',
+    'host' => env('DB_HOST', '127.0.0.1'),
+    'port' => env('DB_PORT', '3306'),
+    'database' => env('DB_DATABASE', 'laravel'),
+    'username' => env('DB_USERNAME', 'root'),
+    'password' => env('DB_PASSWORD', ''),
+    'charset' => env('DB_CHARSET', 'utf8mb4'),
+    'collation' => env('DB_COLLATION', 'utf8mb4_unicode_ci'),
+    'prefix' => '',
+    'strict' => true,
+    'engine' => null,
+],
+```
+
+```env .env (Custom Charset)
+DB_CHARSET=utf8mb4
+DB_COLLATION=utf8mb4_unicode_ci
+```
+</CodeGroup>
+
+## Cache Configuration
+
+Solare Admin View uses database-based caching by default:
+
+```env .env
+CACHE_STORE=database
+```
+
+<Tabs>
+  <Tab title="Database">
+    ```env .env
+    CACHE_STORE=database
+    ```
+
+    Create the cache table:
+    ```bash
+    php artisan cache:table
+    php artisan migrate
+    ```
+  </Tab>
+
+  <Tab title="Redis">
+    ```env .env
+    CACHE_STORE=redis
+    REDIS_CLIENT=phpredis
+    REDIS_HOST=127.0.0.1
+    REDIS_PASSWORD=null
+    REDIS_PORT=6379
+    ```
+
+    <Note>
+    Redis requires the PHP Redis extension (`php-redis`) or Predis library.
+    </Note>
+  </Tab>
+
+  <Tab title="Memcached">
+    ```env .env
+    CACHE_STORE=memcached
+    MEMCACHED_HOST=127.0.0.1
+    ```
+  </Tab>
+
+  <Tab title="File">
+    ```env .env
+    CACHE_STORE=file
+    ```
+  </Tab>
+</Tabs>
+
+### Cache Commands
+
+```bash
+# Clear application cache
+php artisan cache:clear
+
+# Clear configuration cache
+php artisan config:clear
+
+# Clear route cache
+php artisan route:clear
+
+# Clear view cache
+php artisan view:clear
+```
+
+## Session Configuration
+
+Sessions are stored in the database by default:
+
+```env .env
+SESSION_DRIVER=database
+SESSION_LIFETIME=120
+SESSION_ENCRYPT=false
+SESSION_PATH=/
+SESSION_DOMAIN=null
+```
+
+Create the sessions table:
+```bash
+php artisan session:table
+php artisan migrate
+```
+
+<Tip>
+For production environments, consider using Redis for session storage for better performance:
+```env
+SESSION_DRIVER=redis
+```
+</Tip>
+
+## Queue Configuration
+
+Background jobs use database queues by default:
+
+```env .env
+QUEUE_CONNECTION=database
+```
+
+### Queue Drivers
+
+<CardGroup cols={2}>
+  <Card title="Database" icon="database">
+    Default driver, stores jobs in database
+    ```env
+    QUEUE_CONNECTION=database
+    ```
+  </Card>
+  <Card title="Redis" icon="server">
+    High-performance queue driver
+    ```env
+    QUEUE_CONNECTION=redis
+    ```
+  </Card>
+  <Card title="Sync" icon="arrows-rotate">
+    Executes jobs immediately (development)
+    ```env
+    QUEUE_CONNECTION=sync
+    ```
+  </Card>
+  <Card title="SQS" icon="aws">
+    Amazon Simple Queue Service
+    ```env
+    QUEUE_CONNECTION=sqs
+    ```
+  </Card>
+</CardGroup>
+
+### Running Queue Workers
+
+```bash
+# Start queue worker
+php artisan queue:work
+
+# Process jobs once (useful for cron)
+php artisan queue:work --once
+
+# Specify queue and connection
+php artisan queue:work database --queue=high,default
+```
+
+<Note>
+The `composer dev` script automatically starts a queue listener alongside the development server.
+</Note>
+
+## Logging Configuration
+
+Configure logging channels and levels:
+
+```env .env
+LOG_CHANNEL=stack
+LOG_STACK=single
+LOG_LEVEL=debug
+LOG_DEPRECATIONS_CHANNEL=null
+```
+
+### Log Levels
+
+- `debug` - Detailed debug information
+- `info` - Interesting events
+- `notice` - Normal but significant events
+- `warning` - Exceptional occurrences that are not errors
+- `error` - Runtime errors
+- `critical` - Critical conditions
+- `alert` - Action must be taken immediately
+- `emergency` - System is unusable
+
+## Mail Configuration
+
+For local development, mail is logged to files:
+
+```env .env
+MAIL_MAILER=log
+MAIL_FROM_ADDRESS="hello@example.com"
+MAIL_FROM_NAME="${APP_NAME}"
+```
+
+### Production Mail Setup
+
+<Tabs>
+  <Tab title="SMTP">
+    ```env .env
+    MAIL_MAILER=smtp
+    MAIL_HOST=smtp.mailtrap.io
+    MAIL_PORT=2525
+    MAIL_USERNAME=your_username
+    MAIL_PASSWORD=your_password
+    MAIL_ENCRYPTION=tls
+    ```
+  </Tab>
+
+  <Tab title="Mailgun">
+    ```env .env
+    MAIL_MAILER=mailgun
+    MAILGUN_DOMAIN=your-domain.com
+    MAILGUN_SECRET=your-secret-key
+    ```
+  </Tab>
+
+  <Tab title="SES">
+    ```env .env
+    MAIL_MAILER=ses
+    AWS_ACCESS_KEY_ID=your_key
+    AWS_SECRET_ACCESS_KEY=your_secret
+    AWS_DEFAULT_REGION=us-east-1
+    ```
+  </Tab>
+</Tabs>
+
+## File Storage
+
+Configure filesystem disks:
+
+```env .env
+FILESYSTEM_DISK=local
+```
+
+### Storage Disks
+
+- `local` - Local filesystem (`storage/app`)
+- `public` - Publicly accessible files (`storage/app/public`)
+- `s3` - Amazon S3 bucket
+
+### AWS S3 Configuration
+
+```env .env
+FILESYSTEM_DISK=s3
+AWS_ACCESS_KEY_ID=your_key
+AWS_SECRET_ACCESS_KEY=your_secret
+AWS_DEFAULT_REGION=us-east-1
+AWS_BUCKET=your_bucket
+AWS_USE_PATH_STYLE_ENDPOINT=false
+```
+
+## Maintenance Mode
+
+Configure how maintenance mode is managed:
+
+```env .env
+APP_MAINTENANCE_DRIVER=file
+# APP_MAINTENANCE_STORE=database
+```
+
+### Maintenance Commands
+
+```bash
+# Enable maintenance mode
+php artisan down
+
+# Enable with secret bypass
+php artisan down --secret="secret-token"
+
+# Disable maintenance mode
+php artisan up
+```
+
+## Environment-Specific Configuration
+
+### Development
+
+```env .env
+APP_ENV=local
+APP_DEBUG=true
+LOG_LEVEL=debug
+```
+
+### Production
+
+```env .env
+APP_ENV=production
+APP_DEBUG=false
+LOG_LEVEL=error
+```
+
+<Warning>
+**Never enable debug mode in production.** This can expose sensitive information like environment variables and database credentials.
+</Warning>
+
+## Configuration Caching
+
+For production, cache configuration to improve performance:
+
+```bash
+# Cache configuration
+php artisan config:cache
+
+# Clear configuration cache
+php artisan config:clear
+```
+
+<Note>
+When configuration is cached, the `.env` file is not loaded. Make sure to run `config:cache` after any configuration changes in production.
+</Note>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Environment Variables" icon="server" href="/development/environment">
+    Complete reference of all environment variables
+  </Card>
+  <Card title="Deployment" icon="rocket" href="/development/deployment">
+    Deploy your application to production
+  </Card>
+</CardGroup>

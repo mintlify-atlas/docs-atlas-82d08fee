@@ -1,0 +1,192 @@
+---
+title: 'Project Structure'
+description: 'Overview of the Solare Admin View project structure and organization'
+---
+
+## Overview
+
+Solare Admin View follows the standard Laravel 12 directory structure, providing a clean and organized foundation for building administrative interfaces.
+
+## Directory Structure
+
+<Accordion title="Root Level">
+```bash
+solare-admin-view/
+├── app/              # Application core code
+├── bootstrap/        # Framework bootstrap files
+├── config/           # Configuration files
+├── database/         # Migrations, factories, and seeders
+├── public/           # Public assets and entry point
+├── resources/        # Views, CSS, and JavaScript
+├── routes/           # Application routes
+├── storage/          # Generated files and logs
+├── tests/            # Unit and feature tests
+├── artisan           # CLI tool
+├── composer.json     # PHP dependencies
+└── package.json      # Node.js dependencies
+```
+</Accordion>
+
+## Application Directory
+
+The `app/` directory contains the core application code:
+
+```bash
+app/
+├── Http/
+│   └── Controllers/  # HTTP controllers
+├── Models/           # Eloquent models
+└── Providers/        # Service providers
+```
+
+<Note>
+The application follows PSR-4 autoloading standards with the `App\` namespace mapped to the `app/` directory.
+</Note>
+
+### Controllers
+
+Controllers are located in `app/Http/Controllers/` and handle HTTP request logic.
+
+```php
+<?php
+
+namespace App\Http\Controllers;
+
+abstract class Controller
+{
+    //
+}
+```
+
+All controllers should extend the base `Controller` class.
+
+### Models
+
+Eloquent models reside in `app/Models/` and represent database tables. See the [Models documentation](/development/models) for detailed information.
+
+## Configuration
+
+Configuration files are stored in the `config/` directory:
+
+- `app.php` - Application settings
+- `auth.php` - Authentication configuration
+- `database.php` - Database connections
+- `cache.php` - Cache configuration
+- `session.php` - Session settings
+- `mail.php` - Email configuration
+- `queue.php` - Queue configuration
+- `services.php` - Third-party services
+
+## Database
+
+The `database/` directory contains all database-related files:
+
+<Tabs>
+  <Tab title="Migrations">
+    Database migrations are versioned schema changes stored in `database/migrations/`.
+    
+    Core migrations include:
+    - `0001_01_01_000000_create_users_table.php`
+    - `0001_01_01_000001_create_cache_table.php`
+    - `0001_01_01_000002_create_jobs_table.php`
+  </Tab>
+  <Tab title="Factories">
+    Model factories for testing and seeding are in `database/factories/`.
+    
+    Example: `UserFactory.php` generates test user data.
+  </Tab>
+  <Tab title="Seeders">
+    Database seeders populate tables with initial data.
+    
+    The main seeder is `database/seeders/DatabaseSeeder.php`.
+  </Tab>
+</Tabs>
+
+## Resources
+
+The `resources/` directory contains frontend assets and views:
+
+```bash
+resources/
+├── css/              # Stylesheets
+├── js/               # JavaScript files
+└── views/            # Blade templates
+    ├── loginScreen/  # Login views
+    └── welcome.blade.php
+```
+
+<Note>
+The project uses **Vite** for asset bundling and **Tailwind CSS** for styling.
+</Note>
+
+## Routes
+
+Route definitions are in the `routes/` directory:
+
+- `web.php` - Web routes (see [Routing documentation](/development/routing))
+
+## Public Directory
+
+The `public/` directory is the web server document root and contains:
+
+- `index.php` - Application entry point
+- Compiled assets (CSS, JavaScript)
+- Public images and files
+
+<Warning>
+Only files in the `public/` directory are directly accessible via HTTP. Never store sensitive files here.
+</Warning>
+
+## Storage Directory
+
+The `storage/` directory contains:
+
+- `app/` - Application-generated files
+- `framework/` - Framework cache and session files
+- `logs/` - Application logs
+
+<Note>
+Ensure the `storage/` and `bootstrap/cache/` directories are writable by the web server.
+</Note>
+
+## Tests
+
+The `tests/` directory contains automated tests:
+
+```bash
+tests/
+├── Feature/  # Feature tests
+└── Unit/     # Unit tests
+```
+
+The project uses **Pest** as the testing framework.
+
+## Autoloading
+
+PSR-4 autoloading configuration from `composer.json`:
+
+```json
+"autoload": {
+    "psr-4": {
+        "App\\": "app/",
+        "Database\\Factories\\": "database/factories/",
+        "Database\\Seeders\\": "database/seeders/"
+    }
+},
+"autoload-dev": {
+    "psr-4": {
+        "Tests\\": "tests/"
+    }
+}
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Routing" icon="route" href="/development/routing">
+    Learn about the routing system
+  </Card>
+  <Card title="Models" icon="database" href="/development/models">
+    Explore Eloquent models
+  </Card>
+</CardGroup>

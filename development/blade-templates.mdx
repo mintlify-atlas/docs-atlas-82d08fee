@@ -1,0 +1,409 @@
+---
+title: Blade Templates
+description: Learn how to use Laravel's Blade templating engine in Solare Admin View
+---
+
+## Overview
+
+**Blade** is Laravel's powerful templating engine that allows you to write clean, maintainable PHP templates with an elegant syntax. Solare Admin View uses Blade for all view rendering.
+
+## Basic Syntax
+
+### Displaying Data
+
+Use double curly braces to echo data:
+
+```blade
+<title>{{ config('app.name', 'Laravel') }}</title>
+```
+
+Blade automatically escapes output to prevent XSS attacks.
+
+### Raw Output
+
+To display unescaped data (use with caution):
+
+```blade
+{!! $htmlContent !!}
+```
+
+### Blade Directives
+
+Blade provides convenient directives for common PHP operations:
+
+```blade
+@if (Route::has('login'))
+    <nav class="flex items-center justify-end gap-4">
+        @auth
+            <a href="{{ url('/dashboard') }}">
+                Dashboard
+            </a>
+        @else
+            <a href="{{ route('login') }}">
+                Log in
+            </a>
+        @endauth
+    </nav>
+@endif
+```
+
+## Layout and Sections
+
+### Creating a Layout
+
+Here's a base layout from the project:
+
+```blade resources/views/loginScreen/login.blade.php
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi App con Flowbite</title>
+    
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+</head>
+<body>
+    @yield('content')
+
+    <!-- Alert components -->
+    <div class="p-4 mb-4 text-sm text-fg-brand-strong rounded-base bg-brand-softer" role="alert">
+      <span class="font-medium">Info alert!</span> Change a few things up and try submitting again.
+    </div>
+</body>
+</html>
+```
+
+### Extending Layouts
+
+Child views can extend layouts:
+
+```blade
+@extends('layouts.app')
+
+@section('content')
+    <div class="container">
+        <h1>Dashboard</h1>
+    </div>
+@endsection
+```
+
+### Section Directive
+
+Define content sections:
+
+```blade
+@section('sidebar')
+    <ul>
+        <li>Menu Item</li>
+    </ul>
+@endsection
+```
+
+## Working with Vite
+
+### Including Assets
+
+Use the `@vite` directive to include compiled assets:
+
+```blade
+@vite(['resources/css/app.css', 'resources/js/app.js'])
+```
+
+### Conditional Asset Loading
+
+The welcome page includes conditional asset loading:
+
+```blade resources/views/welcome.blade.php
+@if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+@else
+    <style>
+        /* Fallback inline styles */
+    </style>
+@endif
+```
+
+<Note>
+This pattern ensures assets load correctly in both development and production environments.
+</Note>
+
+## Control Structures
+
+### Conditionals
+
+<CodeGroup>
+
+```blade @if / @else
+@if (Route::has('login'))
+    <nav><!-- Navigation --></nav>
+@endif
+```
+
+```blade @auth / @guest
+@auth
+    <a href="{{ url('/dashboard') }}">Dashboard</a>
+@else
+    <a href="{{ route('login') }}">Log in</a>
+@endauth
+```
+
+```blade @unless
+@unless (Auth::check())
+    <p>You are not logged in.</p>
+@endunless
+```
+
+</CodeGroup>
+
+### Loops
+
+```blade
+@foreach ($users as $user)
+    <li>{{ $user->name }}</li>
+@endforeach
+
+@forelse ($posts as $post)
+    <article>{{ $post->title }}</article>
+@empty
+    <p>No posts found.</p>
+@endforelse
+```
+
+## Dynamic Classes
+
+### Using Tailwind with Blade
+
+Combine Blade variables with Tailwind classes:
+
+```blade resources/views/welcome.blade.php
+<body class="bg-[#FDFDFC] dark:bg-[#0a0a0a] text-[#1b1b18] flex p-6 lg:p-8 items-center lg:justify-center min-h-screen flex-col">
+    <header class="w-full lg:max-w-4xl max-w-[335px] text-sm mb-6 not-has-[nav]:hidden">
+        @if (Route::has('login'))
+            <nav class="flex items-center justify-end gap-4">
+                @auth
+                    <a href="{{ url('/dashboard') }}"
+                       class="inline-block px-5 py-1.5 dark:text-[#EDEDEC] border-[#19140035] hover:border-[#1915014a] border text-[#1b1b18] dark:border-[#3E3E3A] dark:hover:border-[#62605b] rounded-sm text-sm leading-normal">
+                        Dashboard
+                    </a>
+                @else
+                    <a href="{{ route('login') }}"
+                       class="inline-block px-5 py-1.5 dark:text-[#EDEDEC] text-[#1b1b18] border border-transparent hover:border-[#19140035] dark:hover:border-[#3E3E3A] rounded-sm text-sm leading-normal">
+                        Log in
+                    </a>
+                @endauth
+            </nav>
+        @endif
+    </header>
+</body>
+```
+
+### Conditional Classes
+
+Use PHP expressions for conditional classes:
+
+```blade
+<div class="{{ $isActive ? 'bg-blue-500' : 'bg-gray-500' }}">
+    Content
+</div>
+```
+
+## Components and Slots
+
+### Creating Components
+
+Create reusable Blade components:
+
+```blade resources/views/components/alert.blade.php
+@props(['type' => 'info'])
+
+<div {{ $attributes->merge(['class' => "p-4 mb-4 text-sm rounded-base"]) }}
+     class="{{ match($type) {
+         'danger' => 'text-fg-danger-strong bg-danger-soft',
+         'success' => 'text-fg-success-strong bg-success-soft',
+         'warning' => 'text-fg-warning bg-warning-soft',
+         default => 'text-fg-brand-strong bg-brand-softer'
+     } }}"
+     role="alert">
+    {{ $slot }}
+</div>
+```
+
+### Using Components
+
+```blade
+<x-alert type="success">
+    <span class="font-medium">Success!</span> Your changes have been saved.
+</x-alert>
+
+<x-alert type="danger">
+    <span class="font-medium">Error!</span> Something went wrong.
+</x-alert>
+```
+
+## Working with Routes
+
+### Named Routes
+
+```blade
+<a href="{{ route('login') }}">Log in</a>
+<a href="{{ route('register') }}">Register</a>
+```
+
+### URL Helper
+
+```blade
+<a href="{{ url('/dashboard') }}">Dashboard</a>
+```
+
+### Route Parameters
+
+```blade
+<a href="{{ route('posts.show', $post->id) }}">View Post</a>
+```
+
+## Localization
+
+### Language Strings
+
+The welcome page uses localization:
+
+```blade resources/views/welcome.blade.php
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+```
+
+### Translation Helper
+
+```blade
+<h1>{{ __('Welcome') }}</h1>
+<p>{{ __('auth.failed') }}</p>
+```
+
+## Forms and CSRF
+
+### CSRF Token
+
+Always include CSRF token in forms:
+
+```blade
+<form method="POST" action="{{ route('login') }}">
+    @csrf
+    
+    <input type="email" name="email">
+    <input type="password" name="password">
+    
+    <button type="submit">Login</button>
+</form>
+```
+
+### Method Spoofing
+
+For PUT, PATCH, DELETE requests:
+
+```blade
+<form method="POST" action="{{ route('posts.update', $post) }}">
+    @csrf
+    @method('PUT')
+    
+    <!-- Form fields -->
+</form>
+```
+
+## Error Handling
+
+### Validation Errors
+
+```blade
+@if ($errors->any())
+    <div class="p-4 mb-4 text-sm text-fg-danger-strong rounded-base bg-danger-soft" role="alert">
+        <span class="font-medium">Error!</span>
+        <ul class="mt-2 ml-4 list-disc">
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
+```
+
+### Field-Specific Errors
+
+```blade
+<input type="email" name="email" class="@error('email') border-red-500 @enderror">
+
+@error('email')
+    <span class="text-red-500 text-sm">{{ $message }}</span>
+@enderror
+```
+
+## Session Data
+
+### Flash Messages
+
+```blade
+@if (session('success'))
+    <div class="p-4 mb-4 text-sm text-fg-success-strong rounded-base bg-success-soft" role="alert">
+        {{ session('success') }}
+    </div>
+@endif
+```
+
+## Including SVGs
+
+The welcome page includes inline SVG for the Laravel logo:
+
+```blade resources/views/welcome.blade.php
+<svg class="w-full text-[#F53003] dark:text-[#F61500] transition-all translate-y-0 opacity-100 max-w-none duration-750 starting:opacity-0 starting:translate-y-6" 
+     viewBox="0 0 438 104" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M17.2036 -3H0V102.197H49.5189V86.7187H17.2036V-3Z" fill="currentColor" />
+    <!-- More paths... -->
+</svg>
+```
+
+<Note>
+Inline SVGs can use Tailwind classes and respond to dark mode.
+</Note>
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Escape output by default">
+    Always use `{{ }}` for output unless you specifically need unescaped HTML with `{!! !!}`.
+  </Accordion>
+
+  <Accordion title="Use named routes">
+    Prefer `route('login')` over hardcoded URLs for better maintainability.
+  </Accordion>
+
+  <Accordion title="Organize templates">
+    Group related templates in subdirectories like `resources/views/loginScreen/`.
+  </Accordion>
+
+  <Accordion title="Include CSRF protection">
+    Always add `@csrf` to forms that modify data.
+  </Accordion>
+
+  <Accordion title="Leverage components">
+    Create reusable components for common UI patterns like alerts and buttons.
+  </Accordion>
+</AccordionGroup>
+
+## File Organization
+
+The project organizes views logically:
+
+```
+resources/views/
+├── welcome.blade.php          # Welcome/landing page
+├── loginScreen/
+│   └── login.blade.php        # Login page layout
+└── components/                 # Reusable components
+    └── alert.blade.php
+```
+
+## Resources
+
+- [Laravel Blade Documentation](https://laravel.com/docs/blade)
+- [Tailwind CSS Integration](/development/tailwind)
+- [Flowbite Components](/development/flowbite)
+- [Laravel Vite Documentation](https://laravel.com/docs/vite)

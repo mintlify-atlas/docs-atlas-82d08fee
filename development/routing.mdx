@@ -1,0 +1,334 @@
+---
+title: 'Routing'
+description: 'Understanding the routing system in Solare Admin View'
+---
+
+## Overview
+
+Solare Admin View uses Laravel's powerful routing system to define URL patterns and map them to controllers or closures. All routes are defined in the `routes/` directory.
+
+## Web Routes
+
+Web routes are defined in `routes/web.php` and automatically have session state, CSRF protection, and cookie encryption applied.
+
+### Current Routes
+
+Here's the current routing configuration:
+
+```php routes/web.php
+<?php
+
+use Illuminate\Support\Facades\Route;
+
+Route::get('/', function () {
+    return view('loginScreen.login');
+});
+```
+
+<Note>
+The default route displays the login screen at the root URL path.
+</Note>
+
+## Route Types
+
+Laravel supports all HTTP verbs for defining routes:
+
+<Tabs>
+  <Tab title="GET">
+    ```php
+    Route::get('/users', function () {
+        // Handle GET request
+    });
+    ```
+    Used for retrieving data and displaying views.
+  </Tab>
+  <Tab title="POST">
+    ```php
+    Route::post('/users', function () {
+        // Handle POST request
+    });
+    ```
+    Used for creating new resources.
+  </Tab>
+  <Tab title="PUT/PATCH">
+    ```php
+    Route::put('/users/{id}', function ($id) {
+        // Handle PUT request
+    });
+    
+    Route::patch('/users/{id}', function ($id) {
+        // Handle PATCH request
+    });
+    ```
+    Used for updating existing resources.
+  </Tab>
+  <Tab title="DELETE">
+    ```php
+    Route::delete('/users/{id}', function ($id) {
+        // Handle DELETE request
+    });
+    ```
+    Used for deleting resources.
+  </Tab>
+</Tabs>
+
+## Controller Routes
+
+While the current application uses closure-based routes, you can also route to controller methods:
+
+```php
+use App\Http\Controllers\UserController;
+
+Route::get('/users', [UserController::class, 'index']);
+Route::post('/users', [UserController::class, 'store']);
+Route::get('/users/{id}', [UserController::class, 'show']);
+Route::put('/users/{id}', [UserController::class, 'update']);
+Route::delete('/users/{id}', [UserController::class, 'destroy']);
+```
+
+<Tip>
+For RESTful resource controllers, you can use the `Route::resource()` shorthand:
+
+```php
+Route::resource('users', UserController::class);
+```
+</Tip>
+
+## Route Parameters
+
+Routes can accept parameters in the URL:
+
+### Required Parameters
+
+```php
+Route::get('/users/{id}', function (string $id) {
+    return "User ID: $id";
+});
+```
+
+### Optional Parameters
+
+```php
+Route::get('/users/{id?}', function (?string $id = null) {
+    return $id ? "User ID: $id" : "All users";
+});
+```
+
+### Parameter Constraints
+
+```php
+Route::get('/users/{id}', function (string $id) {
+    //
+})->where('id', '[0-9]+');
+
+Route::get('/users/{name}', function (string $name) {
+    //
+})->where('name', '[A-Za-z]+');
+```
+
+## Named Routes
+
+Name routes to generate URLs or redirects easily:
+
+```php
+Route::get('/dashboard', function () {
+    //
+})->name('dashboard');
+
+// Generate URL
+$url = route('dashboard');
+
+// Redirect to named route
+return redirect()->route('dashboard');
+```
+
+## Route Groups
+
+Group routes that share common attributes:
+
+### Middleware Groups
+
+```php
+Route::middleware(['auth'])->group(function () {
+    Route::get('/dashboard', function () {
+        // Requires authentication
+    });
+    Route::get('/profile', function () {
+        // Requires authentication
+    });
+});
+```
+
+### Prefix Groups
+
+```php
+Route::prefix('admin')->group(function () {
+    Route::get('/users', function () {
+        // Matches /admin/users
+    });
+    Route::get('/posts', function () {
+        // Matches /admin/posts
+    });
+});
+```
+
+### Name Prefix Groups
+
+```php
+Route::name('admin.')->group(function () {
+    Route::get('/users', function () {
+        // Route named 'admin.users'
+    })->name('users');
+});
+```
+
+## Middleware
+
+Apply middleware to routes for authentication, authorization, and request filtering:
+
+```php
+Route::get('/dashboard', function () {
+    //
+})->middleware('auth');
+
+// Multiple middleware
+Route::get('/admin', function () {
+    //
+})->middleware(['auth', 'admin']);
+```
+
+<Note>
+Laravel includes several built-in middleware like `auth`, `guest`, `throttle`, and `verified`.
+</Note>
+
+## CSRF Protection
+
+All POST, PUT, PATCH, and DELETE routes in `web.php` automatically have CSRF protection enabled.
+
+Include the CSRF token in your forms:
+
+```html
+<form method="POST" action="/users">
+    @csrf
+    <!-- Form fields -->
+</form>
+```
+
+For AJAX requests:
+
+```javascript
+<script>
+    document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+</script>
+```
+
+## Route Model Binding
+
+Automatically inject model instances into routes:
+
+```php
+use App\Models\User;
+
+Route::get('/users/{user}', function (User $user) {
+    return $user->name;
+});
+```
+
+Laravel automatically queries the database using the `id` parameter and injects the model.
+
+### Custom Key Binding
+
+```php
+Route::get('/users/{user:email}', function (User $user) {
+    return $user->name;
+});
+```
+
+## Fallback Routes
+
+Define a fallback route for 404 errors:
+
+```php
+Route::fallback(function () {
+    return view('errors.404');
+});
+```
+
+## Rate Limiting
+
+Protect routes from abuse with rate limiting:
+
+```php
+Route::middleware('throttle:60,1')->group(function () {
+    Route::get('/api/users', function () {
+        // Limited to 60 requests per minute
+    });
+});
+```
+
+## Viewing Routes
+
+List all registered routes using Artisan:
+
+```bash
+php artisan route:list
+```
+
+Filter by name or URI:
+
+```bash
+php artisan route:list --name=user
+php artisan route:list --path=api
+```
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Use Named Routes">
+    Always name your routes for easier URL generation and refactoring:
+    
+    ```php
+    Route::get('/dashboard', [DashboardController::class, 'index'])
+        ->name('dashboard');
+    ```
+  </Accordion>
+  
+  <Accordion title="Group Related Routes">
+    Use route groups to apply common middleware and prefixes:
+    
+    ```php
+    Route::middleware('auth')->prefix('admin')->group(function () {
+        // Admin routes
+    });
+    ```
+  </Accordion>
+  
+  <Accordion title="Use Controller Routes">
+    For complex logic, prefer controllers over closures:
+    
+    ```php
+    Route::get('/users', [UserController::class, 'index']);
+    ```
+  </Accordion>
+  
+  <Accordion title="Leverage Route Model Binding">
+    Simplify route logic with automatic model injection:
+    
+    ```php
+    Route::get('/users/{user}', function (User $user) {
+        return view('users.show', compact('user'));
+    });
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Project Structure" icon="folder-tree" href="/development/structure">
+    Learn about the project organization
+  </Card>
+  <Card title="Models" icon="database" href="/development/models">
+    Explore Eloquent models
+  </Card>
+</CardGroup>
